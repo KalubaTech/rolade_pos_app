@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "169894090592",
+    "project_id": "rolade-pos",
+    "storage_bucket": "rolade-pos.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:169894090592:android:96795ac9d848adf4437005",
+        "android_client_info": {
+          "package_name": "com.kalutech.rolade_pos"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "169894090592-8k28q8cuif4sdfthdsaaatl6vftu2ra6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kalutech.rolade_pos",
+            "certificate_hash": "53c2f6da1babbc44267647f98ccc6ee7b9cda795"
+          }
+        },
+        {
+          "client_id": "169894090592-j1gnrjv0eg2lahvps95asefka2bvdh8e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kalutech.rolade_pos",
+            "certificate_hash": "bd0e7756e14acf480127cb85e01ffd2a6c1fafaf"
+          }
+        },
+        {
+          "client_id": "169894090592-juu4v78gvii9ihurhpv1k19ipf2qn4dc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmDCL5oKLSu_mnj7ZD-CpE7QU5BYqt-N0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "169894090592-juu4v78gvii9ihurhpv1k19ipf2qn4dc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
