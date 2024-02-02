@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nepali_date_picker/nepali_date_picker.dart';
 import 'package:rolade_pos/components/form_components/button2.dart';
 import 'package:rolade_pos/controllers/cart_controller.dart';
+import 'package:rolade_pos/controllers/ordersController.dart';
 import 'package:rolade_pos/controllers/products_controller.dart';
 import 'package:rolade_pos/controllers/store_controller.dart';
 import 'package:get/get.dart';
@@ -815,7 +816,7 @@ class Methods {
                                 Expanded(
                                     child: Button2(
                                         backgroundColor: Karas.primary,
-                                        content: Text('Buy', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),),
+                                        content: Text('Sale', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),),
                                         tap: (){
 
                                         }
@@ -1165,6 +1166,22 @@ class Methods {
       print(picked);
     }
     return selectedDate;
+  }
+
+
+  double salesByDate(String date){
+    OrdersController _orderController = Get.find();
+
+    double total = 0.0;
+
+    Iterable<OrderModel> filtered = _orderController.orders.value.where((p0) => p0.date.split(' ').first==date);
+
+    if(filtered.isNotEmpty){
+      total = filtered.map((e) => e.total).reduce((value, element) => value+element);
+    }
+
+    print(total);
+    return total;
   }
 
 

@@ -40,12 +40,21 @@ import 'package:fl_chart/fl_chart.dart';
 import '../cart/cart.dart';
 import '../product_views/product_entry.dart';
 import '../product_views/products_by_category.dart';
+import 'package:animated_digit/animated_digit.dart';
+import 'package:time_diffrence/time_diffrence.dart';
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
   Dashboard({Key? key}) : super(key: key);
 
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
   UserController _userController = Get.find();
+
   StoreController _storeController = Get.find();
+
   FirebaseFirestore fs = FirebaseFirestore.instance;
 
   Methods _methods = Methods();
@@ -58,13 +67,38 @@ class Dashboard extends StatelessWidget {
 
   ProductsController _productsController = Get.find();
 
+  DateTime selectedDate = DateTime.now();
 
+  String nextSalesDate = DateTime.now().toString().split(' ').first;
+  String prevSalesDate = DateTime.now().subtract(Duration(days: 1)).toString().split(' ').first;
+
+  Future<String> _selectDate(BuildContext context, String initDate) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.parse(initDate),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null && picked != selectedDate) {
+      return picked.toString().split(' ').first;//picked;
+    }else{
+      return '${DateTime.now().toString().split(' ').first}';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
 
     return GetBuilder<ProductsController>(
       builder: (productsController) {
+
+        double prevSales = 0.0;
+        double nextSales = 0.0;
+
+        prevSales = _methods.salesByDate(prevSalesDate);
+        nextSales = _methods.salesByDate(nextSalesDate);
+
         return DraggableHome(
           key: _scaffoldKey,
           drawer: Container(
@@ -232,9 +266,6 @@ class Dashboard extends StatelessWidget {
                               : NotificationsHelper().showNotification('HELLO', 'HOW ARE YOU!');
 
 
-
-
-
                         }),
                       ):Container(),
                   ):Container(),
@@ -298,6 +329,8 @@ class Dashboard extends StatelessWidget {
                         double totalSales = 0.0;
                         double totalYesterdaySales = 0.0;
                         double percentageChange = 0;
+
+
                         if(_ordersController.orders.length>0){
                           totalSales = _methods.calculateDaySales(_ordersController.orders,0);
                           totalYesterdaySales = snapshot.data!.size>1?_methods.calculateDaySales(_ordersController.orders,01):0.1;
@@ -336,18 +369,30 @@ class Dashboard extends StatelessWidget {
                                     children: [
                                       Container(
                                          padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
-                                          child: Text('Today', style: title3,)
+                                          child: InkWell(
+                                            onTap: ()async{
+                                              nextSalesDate = await _selectDate(context, nextSalesDate);
+                                              setState(() {
+                                                nextSales = _methods.salesByDate(nextSalesDate);
+                                              });
+                                            },
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text('${convertToNaturalLanguageDate(DateTime.parse(nextSalesDate))}', style: title3,),
+                                                Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
+                                              ],
+                                            ),
+                                          ),
                                       ),
                                       Container(
                                          padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
-                                          child: AnimatedNumber(
-                                            startValue: 0,
-                                            endValue: totalSales,
-                                            duration: Duration(seconds: 2),
-                                            isFloatingPoint: false,
-                                            prefixText: 'K',
-                                            style: headerL,
-                                          )
+                                          child: AnimatedDigitWidget(
+                                              value: nextSales,
+                                              textStyle: title1,
+                                              duration: Duration(seconds: 2),
+                                              prefix: 'K'
+                                            ),
                                       ),
                                       Container(
                                           padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 1),
@@ -376,25 +421,42 @@ class Dashboard extends StatelessWidget {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                         padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
-                                          child: Text('Yesterday', style: title3,)
-                                      ),
-                                      Container(
-                                         padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
-                                          child: AnimatedNumber(
-                                            startValue: 0,
-                                            endValue: totalYesterdaySales,
-                                            duration: Duration(seconds: 3),
-                                            isFloatingPoint: false,
-                                            prefixText: 'K',
-                                            style: headerL,
-                                          )
-                                      ),
-                                      Container(
-                                          padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 2),
+                                        padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
+                                        child: InkWell(
+                                          onTap: ()async{
+                                            prevSalesDate = await _selectDate(context, prevSalesDate);
+                                            setState(() {
+                                              prevSales = _methods.salesByDate(prevSalesDate);
+                                            });
+                                          },
                                           child: Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
+                                              Text('${convertToNaturalLanguageDate(DateTime.parse(prevSalesDate))}', style: title3,),
+                                              Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
+                                        child: AnimatedDigitWidget(
+                                            value: prevSales,
+                                            textStyle: title1,
+                                            duration: Duration(seconds: 2),
+                                            prefix: 'K'
+                                        ),
+                                      ),
+                                      Container(
+                                          padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 1),
+                                          child: Row(
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Icon(percentageChange.ceil()<1?Icons.trending_down:Icons.trending_up, color: percentageChange.ceil()<1?Colors.deepOrange:Colors.blue),
+                                                  Text('  ${_ordersController.orders.length<2?100:percentageChange.ceil()}%', style: TextStyle(fontSize: 14, color:percentageChange.ceil()<1?Colors.red:Colors.blue, fontWeight: FontWeight.w700),),
+                                                ],
+                                              ),
                                             ],
                                           )
                                       ),
@@ -414,7 +476,8 @@ class Dashboard extends StatelessWidget {
                   ),
                   SizedBox(height: 16,),
                   CardItems(
-                    head: CardItemsHeader(title: 'Daily Sales',/*seeallbtn: SizedBox(
+                    head: CardItemsHeader(title: 'Daily Sales',
+                      /*seeallbtn: SizedBox(
                       width: 100,
                       child: DropdownSearch<String>(
                         items: [
@@ -464,7 +527,7 @@ class Dashboard extends StatelessWidget {
                                  OrderModel.fromMap({
                                    'orderNo': e.get('orderNo'),
                                    'products': e.get('products').map((element) => {'productId':element['productId'],'quantity':element['quantity']}).toList(),
-                                   'datetime': '${DateTime.now()}',
+                                   'datetime': '${e.get('datetime')}',
                                    'quantity': '${e.get('quantity')}',
                                    'total': '${e.get('total')}',
                                    'cash': '${e.get('cash')}',

@@ -77,6 +77,8 @@ dependencies:
   geolocator: ^10.1.0
   google_maps_flutter: ^2.5.0
   geocoding: ^2.1.1
+  animated_digit: ^3.2.3
+  time_diffrence: ^0.0.1
 
 
 

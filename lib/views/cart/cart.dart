@@ -131,7 +131,7 @@ class _CartState extends State<Cart> {
                       child: Button2(
                           width: 140,
                           height: 40,
-                          content: Text('Checkout', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                          content: Text('Sale', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
                           tap: (){
                              Get.to(()=>Checkout());
                           }
