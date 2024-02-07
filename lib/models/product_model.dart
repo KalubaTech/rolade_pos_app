@@ -13,6 +13,7 @@ class ProductModel {
   String? supplierPhone;
   String? unit;
   String category;
+  String lowStockLevel;
 
 
   ProductModel(
@@ -25,6 +26,7 @@ class ProductModel {
         required this.images,
         required this.tax,
         required this.category,
+        required this.lowStockLevel,
         this.supplierName,
         this.supplierPhone,
         this.unit

@@ -5,6 +5,7 @@ import 'package:rolade_pos/styles/colors.dart';
 import 'package:rolade_pos/styles/title_styles.dart';
 import 'package:rolade_pos/views/product_views/product_details.dart';
 
+import '../helpers/methods.dart';
 import '../models/product_model.dart';
 
 class SmallProductContainer extends StatelessWidget {
@@ -14,13 +15,24 @@ class SmallProductContainer extends StatelessWidget {
   ProductModel product;
   SmallProductContainer({required this.image, required this.title, required this.id, required this.product});
 
+  Methods _methods = Methods();
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: (){
-        Get.to(()=>ProductDetails(product));
+        ModalRoute<dynamic>? currentRoute = ModalRoute.of(context);
+        if (currentRoute != null) {
+          String currentScreen = currentRoute.settings.name ?? 'Unknown Screen';
+          if(currentScreen=='/ProductDetails'){
+            _methods.productToCartDialog(product, context);
+          }else{
+            Get.to(()=>ProductDetails(product));
+          }
+        }
       },
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Container(
@@ -41,7 +53,14 @@ class SmallProductContainer extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10,),
-          Text(title, style: title4,maxLines: 1, overflow: TextOverflow.ellipsis,)
+          Text(title, style:
+          TextStyle(
+              color: int.parse(product.quantity)==0?Colors.red:int.parse(product.quantity)<int.parse(product.lowStockLevel)?Colors.orange:Karas.primary,
+              fontSize: 13,
+            fontWeight: FontWeight.w600
+          ),
+              maxLines: 1, overflow: TextOverflow.ellipsis,),
+          Text('K${product.price}', style: title4,)
         ],
       ),
     );

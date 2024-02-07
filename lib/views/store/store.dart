@@ -1,12 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:draggable_home/draggable_home.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:rolade_pos/components/card_items.dart';
 import 'package:rolade_pos/components/card_items_header.dart';
 import 'package:rolade_pos/components/form_components/button1.dart';
 import 'package:rolade_pos/components/form_components/button2.dart';
 import 'package:rolade_pos/components/form_components/form_input_field.dart';
+import 'package:rolade_pos/components/list_tile_custom.dart';
 import 'package:rolade_pos/controllers/user_controller.dart';
+import 'package:rolade_pos/models/store_model.dart';
 import 'package:rolade_pos/styles/colors.dart';
 import 'package:rolade_pos/styles/title_styles.dart';
 import 'package:rolade_pos/views/product_views/product_entry.dart';
@@ -34,6 +37,7 @@ class Store extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    StoreModel store = _storeController.store.value;
     return SafeArea(
       child: GetBuilder<ProductsController>(
         builder: (productsController) {
@@ -50,11 +54,50 @@ class Store extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('${_storeController.store.value.name}', style: title1,),
-                    Text('Store', style: title4,)
+                    Text('${store.description}', style: title4,)
                   ],
                 ),
               ),
               body: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    border: BorderDirectional(top: BorderSide(color: Karas.background),bottom: BorderSide(color: Karas.background))
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                       ListTileCustom(title: '${store.address}', subtitle: 'Address',),
+                       ListTileCustom(title: '${store.province}', subtitle: 'Province',),
+                       ListTileCustom(title: '${store.district}', subtitle: 'District',),
+                       SizedBox(height: 10),
+                       Container(
+                         height: 100,
+                         decoration: BoxDecoration(
+                           borderRadius: BorderRadius.circular(20)
+                         ),
+                         width: double.infinity,
+                         child:  ClipRRect(
+                         borderRadius: BorderRadius.circular(20),
+                           child: GoogleMap(
+                               markers: {
+                                 Marker(
+                                     markerId: MarkerId('2'),
+                                     position: LatLng(double.parse(store.latitude), double.parse(store.longitude)),
+                                     icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure)
+                                 )
+                               },
+                               initialCameraPosition: CameraPosition(
+                                   target: LatLng(double.parse(store.latitude), double.parse(store.longitude)),
+                                   zoom: 17
+                               )
+                           ),
+                         ),
+                       )
+                    ],
+                  )
+                ),
+                SizedBox(height: 10),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 18),
                   child: CardItems(

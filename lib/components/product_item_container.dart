@@ -14,7 +14,8 @@ import '../styles/title_styles.dart';
 
 class ProductItemContainer extends StatelessWidget {
   ProductModel product;
-  ProductItemContainer(this.product);
+  bool hasCartbtn;
+  ProductItemContainer(this.product, this.hasCartbtn);
 
   CartController _cartController = Get.find();
 
@@ -56,33 +57,36 @@ class ProductItemContainer extends StatelessWidget {
                   children: [
                     Text('${product.productName}', style: title2,),
                     Text('K${_methods.formatNumber(double.parse(product.price))}', style: title1,),
-                    Text('${_methods.formatNumber(double.parse(product.quantity))} remaining', style: title4,),
-                    SizedBox(height: 10,),
-                    Row(
+                    Text('${_methods.formatNumber(double.parse(product.quantity))} remaining', style: TextStyle(color: int.parse(product.quantity)<int.parse(product.lowStockLevel)?Colors.red:Karas.primary),),
+                    hasCartbtn?Column(
                       children: [
-                        Expanded(child: Container()),
-
-                        SizedBox(width: 20,),
-                        GetBuilder<CartController>(
-                          builder: (controller)=> Container(
-                            width: 100,
-                            child: controller.cart.value.map((e) => e.product['productId']).toList().contains(product.id)?
-                            Button2(
-                                content: Text('View In Cart', style: TextStyle(color: Colors.white),),
-                                tap: (){
-                                  Get.to(()=>Cart());
-                                }
-                            ):
-                            Button2(
-                                content: Text('Add to Cart', style: TextStyle(color: Colors.white),),
-                                tap: (){
-                                  _methods.productToCartDialog(product, context);
-                                }
-                            ),
-                          ),
-                        )
+                        SizedBox(height: 10,),
+                        Row(
+                          children: [
+                            Expanded(child: Container()),
+                            SizedBox(width: 20,),
+                            GetBuilder<CartController>(
+                              builder: (controller)=> Container(
+                                width: 100,
+                                child: controller.cart.value.map((e) => e.product['productId']).toList().contains(product.id)?
+                                Button2(
+                                    content: Text('View In Cart', style: TextStyle(color: Colors.white),),
+                                    tap: (){
+                                      Get.to(()=>Cart());
+                                    }
+                                ):
+                                Button2(
+                                    content: Text('Add to Cart', style: TextStyle(color: Colors.white),),
+                                    tap: (){
+                                      _methods.productToCartDialog(product, context);
+                                    }
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
                       ],
-                    )
+                    ):Container()
                   ],
                 ),
               )

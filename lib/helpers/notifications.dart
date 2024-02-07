@@ -94,9 +94,7 @@ class NotificationsHelper{
           icon: 'launch_background',
           ongoing: true,
           ticker: 'Ticker',
-          showProgress: true,
-          maxProgress: 100,
-          progress: 50
+          showProgress: false,
         ),
       ),
     );

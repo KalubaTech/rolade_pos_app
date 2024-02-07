@@ -6,8 +6,6 @@ import 'package:rolade_pos/components/form_components/button2.dart';
 import 'package:rolade_pos/helpers/methods.dart';
 import 'package:rolade_pos/styles/colors.dart';
 import 'package:rolade_pos/styles/title_styles.dart';
-import 'package:touch_ripple_effect/touch_ripple_effect.dart';
-
 import '../../controllers/cart_controller.dart';
 import '../../models/cart_item_model.dart';
 import '../checkout.dart';
@@ -34,6 +32,7 @@ class _CartState extends State<Cart> {
                 appBarColor: Karas.primary,
                 headerExpandedHeight: 0.09,
                 alwaysShowLeadingAndAction: true,
+                alwaysShowTitle: true,
                 title: Container(
                   child: Text('Cart'),
                 ),
@@ -118,7 +117,7 @@ class _CartState extends State<Cart> {
                             children: [
                               Text('Total'),
                               Text(
-                                  'K${_methods.formatNumber(controller.cart.value.map<double>((e) => e.price.toDouble()).toList().reduce((value, element) => value+element))}',
+                                  'K${_methods.formatNumber(controller.cart.value.map<double>((e) => e.qty*e.price.toDouble()).toList().reduce((value, element) => value+element))}',
                                   style: title1,
                               )
                             ],
@@ -131,7 +130,7 @@ class _CartState extends State<Cart> {
                       child: Button2(
                           width: 140,
                           height: 40,
-                          content: Text('Sale', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                          content: Text('Sell', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
                           tap: (){
                              Get.to(()=>Checkout());
                           }

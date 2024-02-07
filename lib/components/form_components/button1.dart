@@ -20,7 +20,7 @@ class Button1 extends StatelessWidget {
       rippleColor: Colors.grey.withOpacity(0.3),
       child: Container(
         height: height??30,
-        width: double.infinity,
+        width: width??double.infinity,
         decoration: BoxDecoration(
            color: backgroundColor??Karas.primary,
            borderRadius: BorderRadius.circular(8)

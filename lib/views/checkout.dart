@@ -6,6 +6,7 @@ import 'package:rolade_pos/components/card_items.dart';
 import 'package:rolade_pos/components/card_items_header.dart';
 import 'package:rolade_pos/components/form_components/button2.dart';
 import 'package:rolade_pos/components/form_components/form_input_field.dart';
+import 'package:rolade_pos/controllers/ordersController.dart';
 import 'package:rolade_pos/controllers/products_controller.dart';
 import 'package:rolade_pos/models/cart_item_model.dart';
 import 'package:rolade_pos/models/order_model.dart';
@@ -39,10 +40,12 @@ class Checkout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    double subtotal = cartController.cart.value.map<double>((e) => e.price.toDouble()).toList().reduce((value, element) => value+element);
+    double subtotal = cartController.cart.value.map<double>((e) => e.qty*e.price.toDouble()).toList().reduce((value, element) => value+element);
     double tax = (cartController.cart.value.map((e) => e.tax.toDouble()).toList().reduce((value, element) => value+element).toDouble()/100)*subtotal;
     double total = subtotal + tax;
     var change = 0.0.obs;
+
+    OrdersController _orderController = Get.find();
 
     cashController.addListener(() {
       cash.value = double.parse(cashController.text.isEmpty?'0':cashController.text);
@@ -149,7 +152,8 @@ class Checkout extends StatelessWidget {
                             _productsController,
                           );
                         }
-
+                        _orderController.orders.value.add(OrderModel.fromMap(orderData));
+                        _orderController.update();
                         _methods.showSnackBar(context, 'Order Is Successful');
                         NotificationsHelper().showNotification('Ordered Successfully', 'An order of order No. ${orderNo} has completed succesfully!');
                         cartController.cart.clear();

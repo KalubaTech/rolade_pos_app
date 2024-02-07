@@ -49,7 +49,7 @@ class _SearchProductsState extends State<SearchProducts> {
                               ?SearchableList<ProductModel>(
                             searchTextController: searchController,
                             initialList: productController.products.value,
-                            builder: (context, index, product) => ProductItemContainer(product),
+                            builder: (context, index, product) => ProductItemContainer(product,true),
                             filter: (list) {
                               if (list != null) {
                                 return productController.products.value.where((product) {

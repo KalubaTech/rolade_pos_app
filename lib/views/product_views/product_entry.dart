@@ -29,6 +29,7 @@ class ProductEntry extends StatelessWidget {
   TextEditingController supplierPhoneController = TextEditingController();
   TextEditingController barcodeController = TextEditingController();
   TextEditingController quantityController = TextEditingController();
+  TextEditingController lowStockLevelController = TextEditingController();
   TextEditingController taxController = TextEditingController();
 
   final player = AudioPlayer();
@@ -139,6 +140,13 @@ class ProductEntry extends StatelessWidget {
                       SizedBox(height: 15,),
                       FormInputField(
                         isNumeric: true,
+                        controller: lowStockLevelController,
+                        backgroundColor: Karas.secondary,
+                        placeholder: 'Low Stock Level',
+                      ),
+                      SizedBox(height: 15,),
+                      FormInputField(
+                        isNumeric: true,
                         controller: costPriceController,
                         backgroundColor: Karas.secondary,
                         placeholder: 'Cost Price',
@@ -160,7 +168,7 @@ class ProductEntry extends StatelessWidget {
                               isNumeric: false,
                               controller: barcodeController,
                               backgroundColor: Karas.secondary,
-                              placeholder: 'Barcode',
+                              placeholder: 'Barcode / QR Code',
                             ),
                           ),
                           SizedBox(width: 10,),
@@ -301,7 +309,8 @@ class ProductEntry extends StatelessWidget {
                          barcode:barcodeController.text,
                          quantity:quantityController.text,
                          tax: taxController.text,
-                         supplier: supplier
+                         supplier: supplier,
+                         lowStockLevel: lowStockLevelController.text.isNotEmpty?lowStockLevelController.text:'0'
                      );
 
                      productNameController.clear();

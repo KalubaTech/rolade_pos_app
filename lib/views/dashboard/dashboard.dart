@@ -5,12 +5,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:draggable_home/draggable_home.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:rolade_pos/components/ad_container.dart';
 import 'package:rolade_pos/components/alert_banner.dart';
 import 'package:rolade_pos/components/card_items.dart';
 import 'package:rolade_pos/components/card_items_header.dart';
 import 'package:rolade_pos/components/cover_all_image_container.dart';
 import 'package:rolade_pos/components/drawer_header.dart';
+import 'package:rolade_pos/components/form_components/button1.dart';
 import 'package:rolade_pos/components/form_components/button2.dart';
 import 'package:rolade_pos/components/header_avatar.dart';
 import 'package:rolade_pos/controllers/ordersController.dart';
@@ -38,10 +40,13 @@ import '../../styles/title_styles.dart';
 import 'package:get/get.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../cart/cart.dart';
+import '../product_views/product_details.dart';
 import '../product_views/product_entry.dart';
 import '../product_views/products_by_category.dart';
 import 'package:animated_digit/animated_digit.dart';
 import 'package:time_diffrence/time_diffrence.dart';
+import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
+import '../store/stock.dart';
 
 class Dashboard extends StatefulWidget {
   Dashboard({Key? key}) : super(key: key);
@@ -99,6 +104,10 @@ class _DashboardState extends State<Dashboard> {
         prevSales = _methods.salesByDate(prevSalesDate);
         nextSales = _methods.salesByDate(nextSalesDate);
 
+        double percentageChange = ((nextSales - prevSales) / prevSales) * 100;
+        double percentageChangeNxt = prevSales<nextSales?
+        percentageChange:percentageChange;
+
         return DraggableHome(
           key: _scaffoldKey,
           drawer: Container(
@@ -149,6 +158,18 @@ class _DashboardState extends State<Dashboard> {
                               title: 'Cart',
                               tap: (){
                                 Get.to(()=>Cart());
+                              },
+                          ),
+                          DrawerListItem(
+                              leading: Row(
+                                children: [
+                                  Icon(Ionicons.pricetag, size: 18, color: Karas.primary,),
+                                  SizedBox(width: 10,)
+                                ],
+                              ),
+                              title: 'Stock',
+                              tap: (){
+                                Get.to(()=>Store(), transition: Transition.rightToLeft);
                               },
                           ),
                           DrawerListItem(
@@ -256,16 +277,12 @@ class _DashboardState extends State<Dashboard> {
               padding: EdgeInsets.symmetric(horizontal: 15),
               child: Column(
                 children: [
-                  productsController.products.value.where((element) => int.parse(element.quantity)<4).toList().isNotEmpty?AlertBanner(
-                      message: '${productsController.products.value.where((element) => int.parse(element.quantity)<4).toList().length} product(s) are running out of stock!',
+                  productsController.products.value.where((element) => int.parse(element.quantity)<4).toList().isNotEmpty&&_storeController.store.value.email==_userController.user.value.email?AlertBanner(
+                      message: '${productsController.products.value.where((element) => int.parse(element.quantity)<int.parse(element.lowStockLevel)).toList().length} product(s) are running out of stock!',
                       child: _userController.user.value.email==_storeController.store.value.email?Container(
                         width: 85,
                         child: Button2(content: Text('Re-stock', style: TextStyle(color: Colors.white),), tap: (){
-                          productsController.products.value.where((element) => int.parse(element.quantity)<4).toList().length==1?
-                          _methods.productQtyDialog(productsController.products.value.where((element) => int.parse(element.quantity)<4).toList().first, context)
-                              : NotificationsHelper().showNotification('HELLO', 'HOW ARE YOU!');
-
-
+                            Get.to(()=>Stock());
                         }),
                       ):Container(),
                   ):Container(),
@@ -318,316 +335,179 @@ class _DashboardState extends State<Dashboard> {
                       }
                   ),
                   SizedBox(height: 16,),
-                  StreamBuilder(
-                    stream: fs.collection('order')
-                        .where('storeId', isEqualTo: _storeController.store.value.id)
-                        .where('user', isEqualTo:_userController.user.value.email)
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-
-                        double totalSales = 0.0;
-                        double totalYesterdaySales = 0.0;
-                        double percentageChange = 0;
-
-
-                        if(_ordersController.orders.length>0){
-                          totalSales = _methods.calculateDaySales(_ordersController.orders,0);
-                          totalYesterdaySales = snapshot.data!.size>1?_methods.calculateDaySales(_ordersController.orders,01):0.1;
-
-                          percentageChange = ((totalSales - totalYesterdaySales) / totalYesterdaySales) * 100;
-
-                        }
-
-                        return CardItems(
-                        head: CardItemsHeader(title: 'Sales Overview',
-                          seeallbtn: InkWell(
-                            onTap: ()=>Get.to(()=>SalesOverview()),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
-                            child: Text('See all', style: title3,),
-                          ),
-                        ),),
-                        body: Container(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          height: 130,
-                          child: Container(
-                            padding: EdgeInsets.only(bottom: 10),
-                            child: ListView(
-                              scrollDirection: Axis.horizontal,
-                              physics: BouncingScrollPhysics(),
-                              children: [
-                                SizedBox(width: 20,),
-                                Container(
-                                  width: 150,
-                                  decoration: BoxDecoration(
-                                    color: Karas.background,
-                                    borderRadius: BorderRadius.circular(8)
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                         padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
-                                          child: InkWell(
-                                            onTap: ()async{
-                                              nextSalesDate = await _selectDate(context, nextSalesDate);
-                                              setState(() {
-                                                nextSales = _methods.salesByDate(nextSalesDate);
-                                              });
-                                            },
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Text('${convertToNaturalLanguageDate(DateTime.parse(nextSalesDate))}', style: title3,),
-                                                Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
-                                              ],
-                                            ),
-                                          ),
-                                      ),
-                                      Container(
-                                         padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
-                                          child: AnimatedDigitWidget(
-                                              value: nextSales,
-                                              textStyle: title1,
-                                              duration: Duration(seconds: 2),
-                                              prefix: 'K'
-                                            ),
-                                      ),
-                                      Container(
-                                          padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 1),
-                                          child: Row(
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Icon(percentageChange.ceil()<1?Icons.trending_down:Icons.trending_up, color: percentageChange.ceil()<1?Colors.deepOrange:Colors.blue),
-                                                  Text('  ${_ordersController.orders.length<2?100:percentageChange.ceil()}%', style: TextStyle(fontSize: 14, color:percentageChange.ceil()<1?Colors.red:Colors.blue, fontWeight: FontWeight.w700),),
-                                                ],
-                                              ),
-                                            ],
-                                          )
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(width: 10,),
-                                Container(
-                                  width: 150,
-                                  decoration: BoxDecoration(
-                                    color: Karas.orange,
-                                    borderRadius: BorderRadius.circular(8)
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
-                                        child: InkWell(
-                                          onTap: ()async{
-                                            prevSalesDate = await _selectDate(context, prevSalesDate);
-                                            setState(() {
-                                              prevSales = _methods.salesByDate(prevSalesDate);
-                                            });
-                                          },
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text('${convertToNaturalLanguageDate(DateTime.parse(prevSalesDate))}', style: title3,),
-                                              Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
-                                        child: AnimatedDigitWidget(
-                                            value: prevSales,
-                                            textStyle: title1,
-                                            duration: Duration(seconds: 2),
-                                            prefix: 'K'
-                                        ),
-                                      ),
-                                      Container(
-                                          padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 1),
-                                          child: Row(
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Icon(percentageChange.ceil()<1?Icons.trending_down:Icons.trending_up, color: percentageChange.ceil()<1?Colors.deepOrange:Colors.blue),
-                                                  Text('  ${_ordersController.orders.length<2?100:percentageChange.ceil()}%', style: TextStyle(fontSize: 14, color:percentageChange.ceil()<1?Colors.red:Colors.blue, fontWeight: FontWeight.w700),),
-                                                ],
-                                              ),
-                                            ],
-                                          )
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(width: 20,),
-                              ],
-                            ),
-                          ),
+                  _ordersController.orders.length>0?CardItems(
+                    head: CardItemsHeader(title: 'Sales Overview',
+                      seeallbtn: InkWell(
+                        onTap: ()=>Get.to(()=>SalesOverview()),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
+                          child: Text('See all', style: title3,),
                         ),
-                      );
-                      } else {
-                        return Container();
-                      }
-                    }
-                  ),
-                  SizedBox(height: 16,),
-                  CardItems(
-                    head: CardItemsHeader(title: 'Daily Sales',
-                      /*seeallbtn: SizedBox(
-                      width: 100,
-                      child: DropdownSearch<String>(
-                        items: [
-                          'Daily',
-                          'Weekly',
-                          'Monthly',
-                          'Yearly',
-                        ],
-                        popupProps: PopupProps.menu(
-                          showSelectedItems: true,
-                          fit: FlexFit.loose,
-                          disabledItemFn: (String s) => s.startsWith('I'),
-                        ),
-                        dropdownDecoratorProps: DropDownDecoratorProps(
-                            dropdownSearchDecoration: InputDecoration(
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsetsDirectional.symmetric(
-                                    horizontal: 0,
-                                    vertical: 15
-                                ),
-                                filled: false,
-
-                            )
-                        ),
-                        dropdownButtonProps: DropdownButtonProps(
-                          padding: EdgeInsetsDirectional.zero,
-                          iconSize: 20,
-                          icon: Icon(Icons.arrow_drop_down, )
-                        ),
-                        onChanged:(value)=> value,
-                        selectedItem: "Daily",
-                      ),
-                    )*/),
+                      ),),
                     body: Container(
-                      padding: EdgeInsets.symmetric(vertical: 10,horizontal: 20),
-                      height: 180,
-                      width: Get.width,
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      height: 130,
                       child: Container(
-                        padding: EdgeInsets.only(bottom: 20),
-                        child: StreamBuilder(
-                          stream: fs.collection('order')
-                              .where('storeId', isEqualTo: _storeController.store.value.id)
-                              .snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                             List<OrderModel> data = snapshot.data!.docs.map<OrderModel>((e) =>
-                                 OrderModel.fromMap({
-                                   'orderNo': e.get('orderNo'),
-                                   'products': e.get('products').map((element) => {'productId':element['productId'],'quantity':element['quantity']}).toList(),
-                                   'datetime': '${e.get('datetime')}',
-                                   'quantity': '${e.get('quantity')}',
-                                   'total': '${e.get('total')}',
-                                   'cash': '${e.get('cash')}',
-                                   'change': '${e.get('change')}',
-                                   'tax': '${e.get('change')}',
-                                   'subtotal': '${e.get('subtotal')}',
-                                   'customer': '',
-                                   'user': '${_userController.user.value.uid}',
-                                   'storeId': '${_storeController.store.value.id}',
-                                 })
-                              ).toList();
-
-                             _ordersController.orders.value = data.where((element) => element.user==_userController.user.value.uid).toList();
-                              return Container(
-                              child:  Charts.barChartSales(data)
-                              /*Sparkline(
-                                data: [
-                                  40,
-                                  60,
-                                  80,
-                                  50,
-                                  70,
-                                  90
+                        padding: EdgeInsets.only(bottom: 10),
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          physics: BouncingScrollPhysics(),
+                          children: [
+                            SizedBox(width: 20,),
+                            Container(
+                              width: 150,
+                              decoration: BoxDecoration(
+                                  color: Karas.background,
+                                  borderRadius: BorderRadius.circular(8)
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
+                                    child: InkWell(
+                                      onTap: ()async{
+                                        nextSalesDate = await _selectDate(context, nextSalesDate);
+                                        setState(() {
+                                          nextSales = _methods.salesByDate(nextSalesDate);
+                                        });
+                                      },
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('${convertToNaturalLanguageDate(DateTime.parse(nextSalesDate))}', style: title3,),
+                                          Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
+                                    child: AnimatedDigitWidget(
+                                        value: nextSales,
+                                        textStyle: title1,
+                                        duration: Duration(seconds: 2),
+                                        prefix: 'K'
+                                    ),
+                                  ),
+                                  Container(
+                                      padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 1),
+                                      child: Row(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon((percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Icons.trending_down:Icons.trending_up, color: (percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Colors.deepOrange:Colors.blue),
+                                              Text('  ${_ordersController.orders.length<2?100:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt.ceil())}%', style: TextStyle(fontSize: 14, color:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Colors.red:Colors.blue, fontWeight: FontWeight.w700),),
+                                            ],
+                                          ),
+                                        ],
+                                      )
+                                  ),
                                 ],
-                                gridLinelabelPrefix: '',
-                                gridLineLabelPrecision: 3,
-                                gridLineColor: Colors.red.withOpacity(0.4),
-                                enableGridLines: true,
-                                min: 0.0,
-                                max: 100.0,
-                                fillMode: FillMode.below,
-                                fillColor: Colors.orange.withOpacity(0.4),
-                                fallbackWidth: 150,
-                                cubicSmoothingFactor: 0.2,
-                                lineWidth: 2,
-                                pointColor: Colors.green,
-                                pointsMode: PointsMode.all,
-                              )*/
-                            );
-                            } else {
-                              return Container();
-                            }
-                          }
+                              ),
+                            ),
+                            SizedBox(width: 10,),
+                            Container(
+                              width: 150,
+                              decoration: BoxDecoration(
+                                  color: Karas.orange,
+                                  borderRadius: BorderRadius.circular(8)
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
+                                    child: InkWell(
+                                      onTap: ()async{
+                                        prevSalesDate = await _selectDate(context, prevSalesDate);
+                                        setState(() {
+                                          prevSales = _methods.salesByDate(prevSalesDate);
+                                        });
+                                      },
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text('${convertToNaturalLanguageDate(DateTime.parse(prevSalesDate))}', style: title3,),
+                                          Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
+                                    child: AnimatedDigitWidget(
+                                        value: prevSales,
+                                        textStyle: title1,
+                                        duration: Duration(seconds: 2),
+                                        prefix: 'K'
+                                    ),
+                                  ),
+                                  /* Container(
+                                          padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 1),
+                                          child: Row(
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Icon((percentageChange.isNaN || percentageChange.isInfinite?0:percentageChange)<1?Icons.trending_down:Icons.trending_up, color: (percentageChange.isNaN || percentageChange.isInfinite?0:percentageChange)<1?Colors.deepOrange:Colors.blue),
+                                                  Text('  ${_ordersController.orders.length<2?100:(percentageChange.isNaN || percentageChange.isInfinite?0:percentageChange)}%', style: TextStyle(fontSize: 14, color:(percentageChange.isNaN || percentageChange.isInfinite?0:percentageChange)<1?Colors.red:Colors.blue, fontWeight: FontWeight.w700),),
+                                                ],
+                                              ),
+                                            ],
+                                          )
+                                      ),*/
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: 20,),
+                          ],
                         ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 16,),
-                  Container(
-                    height: 135,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      clipBehavior: Clip.none,
-                      itemCount: _ordersController.orders.length,
-                      itemBuilder: (context,index){
-                       ProductModel product = _productsController.products.where((p0) => p0.id == _ordersController.orders[index].products.first['productId']).first;
-                       return AdContainer(
-                          image: Image.network('${product.images.first}', width: 100,fit: BoxFit.cover,),
-                          backgroundColor: Karas.background,
-                          title: '${product.productName}',
-                          details: '${product.description}',
-                          orderbtn: Text('Order Now', style: title3,),
-                        );
-                      },
-                    ),
-                  ),
+                  ):Container(),
+                  _ordersController.orders.length>0?Column(
+                    children: [
+                      SizedBox(height: 16,),
+                      Container(
+                        height: 150,
+                        child: FlutterCarousel(
+                          options: CarouselOptions(
+                            height: 150.0,
+                            showIndicator: false,
+                            slideIndicator: CircularSlideIndicator(),
+                            clipBehavior: Clip.none,
+                            autoPlay: true,
+                            autoPlayCurve: Curves.slowMiddle,
+                            viewportFraction: 0.999
+                          ),
+                          items:  _productsController.products.where((p0) => true).toList()
+                          .map((product) {
+                            return Builder(
+                              builder: (BuildContext context) {
+                                return Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    margin: EdgeInsets.symmetric(horizontal: 5.0),
+                                    child: AdContainer(
+                                      image: '${product.images.first}',
+                                      backgroundColor: Karas.background,
+                                      title: '${product.productName}',
+                                      details: '${product.description}',
+                                      orderbtn: Button1(label: 'View', tap: (){
+                                        Get.to(()=>ProductDetails(product));
+                                      }),
+                                    )
+                                );
+                              },
+                            );
+                          }).toList(),
+                        )
+                      ),
+                    ],
+                  ):Container(),
                   SizedBox(height: 18,),
                 ],
               ),
             ),
-           /* Container(
-              padding: EdgeInsets.symmetric(horizontal: 15),
-              child: StreamBuilder(
-                stream: fs.collection('order')
-                    .where('storeId', isEqualTo:_storeController.store.value.id).snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData&&snapshot.data!.size>0) {
-
-                    return CardItems(
-                    head: CardItemsHeader(title: 'Popular Sales', seeallbtn: Text('See all', style: title3,),),
-                    body: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      height: 120,
-                      child: ListView(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        children:  [
-                          ...
-                          snapshot.data!.docs.map((e) => CoverAllImageContainer(image: '${e.get('images').first}',)).toList()
-                        ],
-                      ),
-                    ),
-                  );
-                  } else {
-                    return Container();
-                  }
-                }
-              ),
-            ),*/
             Container(
               padding: EdgeInsets.symmetric(horizontal: 18),
               child: CardItems(
@@ -670,7 +550,7 @@ class _DashboardState extends State<Dashboard> {
                                 ],
                               ),
                               shrinkWrap: true,
-                              mainAxisSpacing: 10,
+                              mainAxisSpacing: 6,
                               crossAxisSpacing: 15,
                               gridItemBuilder:
                                   (context, int countInGroup, int itemIndexInGroup, item, itemIndexInOriginalList) {

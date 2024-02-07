@@ -95,7 +95,7 @@ pdfGen(
                           style: TextStyle(color: PdfColors.red)),
                     ),
                     Container(
-                      child: Text("Ndola Twapia"),
+                      child: Text("${store.address}"),
                     ),
                   ],
                 ),

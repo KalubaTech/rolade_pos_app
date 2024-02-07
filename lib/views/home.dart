@@ -96,7 +96,7 @@ class Home extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   clipBehavior: Clip.none,
                   children: [
-                    AdContainer(
+                  /*  AdContainer(
                         image: Image.asset('assets/yoghurt.png', width: 90,),
                         backgroundColor: Karas.background,
                         title: '30% Discount',
@@ -109,7 +109,7 @@ class Home extends StatelessWidget {
                         backgroundColor: Karas.orange,
                         title: '30% Discount',
                         details: 'Order any food from app and get the discount'
-                    ),
+                    ),*/
                   ],
                 ),
               ),

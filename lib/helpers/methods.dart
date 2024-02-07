@@ -1,3 +1,4 @@
+
 import 'dart:ui';
 import 'dart:ui';
 
@@ -5,8 +6,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:nepali_date_picker/nepali_date_picker.dart';
 import 'package:rolade_pos/components/form_components/button2.dart';
+import 'package:rolade_pos/components/product_item_container.dart';
 import 'package:rolade_pos/controllers/cart_controller.dart';
 import 'package:rolade_pos/controllers/ordersController.dart';
 import 'package:rolade_pos/controllers/products_controller.dart';
@@ -19,6 +23,7 @@ import 'package:rolade_pos/models/cart_item_model.dart';
 import 'package:rolade_pos/models/product_model.dart';
 import 'package:rolade_pos/models/store_model.dart';
 import 'package:flutter/material.dart';
+import 'package:rolade_pos/views/product_views/product_entry.dart';
 import 'dart:io';
 import '../components/form_components/button1.dart';
 import '../components/form_components/form_input_field.dart';
@@ -32,13 +37,16 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
+import '../views/checkout.dart';
+import 'notifications.dart';
+
 class Methods {
 
   StoreController _storeController = Get.find();
   CartController _cartController = Get.find();
   UserController _userController = Get.find();
   ProductsController _productsController = Get.find();
-
+  OrdersController _orderController = Get.find();
   WorkdaysController _workdaysController = Get.find();
 
 
@@ -62,6 +70,14 @@ class Methods {
           email: storeDocument.get('email'),
           description: storeDocument.get('description'),
           datetime: storeDocument.get('datetime'),
+          longitude: storeDocument.get('location').split(',').last,
+          latitude: storeDocument.get('location').split(',').first,
+          phone: storeDocument.get('phone'),
+          address: storeDocument.get('address'),
+          district: storeDocument.get('district'),
+          province: storeDocument.get('province'),
+          status: storeDocument.get('status'),
+
         );
 
         QuerySnapshot productQuery = await FirebaseFirestore.instance
@@ -71,6 +87,15 @@ class Methods {
 
         QuerySnapshot workdaysQuery = await FirebaseFirestore.instance.collection('working_hours')
             .where('store_id',isEqualTo:_storeController.store.value.id).orderBy('day')
+            .get();
+
+        QuerySnapshot orderQuery = _userController.user.value.email == _storeController.store.value.email ?
+        await FirebaseFirestore.instance.collection('order')
+            .where('storeId',isEqualTo:_storeController.store.value.id)
+            .get() :
+        await FirebaseFirestore.instance.collection('order')
+            .where('storeId',isEqualTo:_storeController.store.value.id)
+            .where('user', isEqualTo: _userController.user.value.uid)
             .get();
 
         List<ProductModel> products = productQuery.docs.map((e) {
@@ -86,6 +111,7 @@ class Methods {
             supplierPhone: e.get('supplierPhone'),
             category: e.get('category'),
             unit: e.get('unit'),
+            lowStockLevel: e.get('lowStockLevel')??'0',
           );
         }).toList();
         List<WorkDayModel> workdays = workdaysQuery.docs.map((e) {
@@ -95,10 +121,28 @@ class Methods {
             to: e.get('endTime')
           );
         }).toList();
+        List<OrderModel> orders = orderQuery.docs.map((e) {
+          return OrderModel(
+              ordID: e.get('orderNo'),
+              products: e.get('products').map<Map<dynamic,dynamic>>((element)=>{'productId':element['productId'], 'quantity':element['qty']}).toList(),
+              quantity: e.get('quantity'),
+              total: double.parse(e.get('total')),
+              tax: double.parse(e.get('tax')),
+              date: e.get('datetime'),
+              customer: e.get('customer'),
+              user: e.get('user'),
+              storeId: e.get('storeId'),
+              cash: double.parse(e.get('cash')),
+              change: double.parse(e.get('change')),
+              subtotal: double.parse(e.get('subtotal'))
+          );
+        }).toList();
 
 
         _workdaysController.workdays.value = workdays;
         _productsController.products.value = products;
+        _orderController.orders.value = orders;
+        _orderController.update();
         _workdaysController.update();
         _productsController.update();
       }
@@ -594,7 +638,8 @@ class Methods {
        String? barcode,
        String? quantity,
        String? tax,
-       String? supplier
+       String? supplier,
+       String? lowStockLevel
   })async{
           for(String image in images){
             await uploadImage(image);
@@ -614,7 +659,8 @@ class Methods {
                   'quantity':quantity??'0',
                   'store_id': _storeController.store.value.id,
                   'tax':tax??'0',
-                  'supplier':supplier??''
+                  'supplier':supplier??'',
+                  'lowStockLevel':lowStockLevel??'0'
                 }).then((value) {
                   uploadedImages.clear();
                 }
@@ -668,7 +714,10 @@ class Methods {
     return formatter.format(price);
   }
         
-  void productBarcodeDialog(String barcode){
+  void productBarcodeDialog(String barcode, AudioPlayer player){
+
+          bool isAdmin = _storeController.store.value.email == _userController.user.value.email;
+
           var qty = 1.obs;
 
           Get.defaultDialog(
@@ -694,7 +743,8 @@ class Methods {
                       supplierName: document.get('supplierName'),
                       supplierPhone: document.get('supplierPhone'),
                       category: document.get('category'),
-                      unit: document.get('unit')
+                      unit: document.get('unit'),
+                      lowStockLevel: document.get('lowStockLevel')??'0'
                   );
                   return Container(
                   child: Column(
@@ -733,7 +783,7 @@ class Methods {
                       SizedBox(height: 20),
                       Container(
                         padding: EdgeInsetsDirectional.symmetric(horizontal: 10),
-                        child: Column(
+                        child: double.parse(product.quantity)>0?Column(
                           children: [
                             Obx(
                               ()=> Row(
@@ -816,22 +866,44 @@ class Methods {
                                 Expanded(
                                     child: Button2(
                                         backgroundColor: Karas.primary,
-                                        content: Text('Sale', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),),
+                                        content: Text('Sell', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),),
                                         tap: (){
-
+                                          saleDirect(product, context);
                                         }
                                     )
                                 ),
                               ],
                             )
                           ],
+                        ):Container(
+                          child: Column(
+                            children: [
+                              Text('OUT OF STOCK', style: TextStyle(color: Colors.deepOrange, fontSize: 20, fontWeight: FontWeight.bold))
+                            ],
+                          ),
                         ),
                       )
                     ],
                   )
                 );
                 } else {
-                  return Container();
+
+                  player.setAsset('assets/barcode_unrecognized.mp3');
+                  player.play();
+
+                  return Container(
+                    child: Column(
+                      children: [
+                        Text('Product Not Found!', style:title1),
+                        isAdmin?Column(
+                          children: [
+                            SizedBox(height: 20),
+                            Button1(label: 'Add', tap: ()=>Get.to(()=>ProductEntry())),
+                          ],
+                        ):Container()
+                      ],
+                    )
+                  );
                 }
               }
             ),
@@ -880,7 +952,7 @@ class Methods {
                     SizedBox(height: 20),
                     Container(
                       padding: EdgeInsetsDirectional.symmetric(horizontal: 10),
-                      child: Column(
+                      child: double.parse(product.quantity)>0?Column(
                         children: [
                           Obx(
                                 ()=> Row(
@@ -963,15 +1035,21 @@ class Methods {
                               Expanded(
                                   child: Button2(
                                       backgroundColor: Karas.primary,
-                                      content: Text('Order Now', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),),
+                                      content: Text('Sell Now', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),),
                                       tap: (){
-
+                                        saleDirect(product, context);
                                       }
                                   )
                               ),
                             ],
                           )
                         ],
+                      ):Container(
+                        child: Column(
+                          children: [
+                            Text('OUT OF STOCK', style: TextStyle(color: Colors.deepOrange, fontSize: 20, fontWeight: FontWeight.bold))
+                          ],
+                        ),
                       ),
                     )
                   ],
@@ -1168,7 +1246,6 @@ class Methods {
     return selectedDate;
   }
 
-
   double salesByDate(String date){
     OrdersController _orderController = Get.find();
 
@@ -1180,8 +1257,127 @@ class Methods {
       total = filtered.map((e) => e.total).reduce((value, element) => value+element);
     }
 
-    print(total);
     return total;
+  }
+
+  saleDirect(ProductModel product, context){
+    TextEditingController amountController = TextEditingController();
+    amountController.text = '0';
+    var qty = 0.obs;
+    var tax = 0.0.obs;
+    var changeAmount = 0.0.obs;
+    var receipt = true.obs;
+
+    Get.bottomSheet(
+      Container(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            color: Colors.white,
+          ),
+          child: Column(
+            children: [
+              SizedBox(height: 14),
+              Container(
+                width: 50,
+                height: 10,
+                decoration: BoxDecoration(
+                  color: Karas.background,
+                  borderRadius: BorderRadius.circular(10)
+                )
+              ),
+              SizedBox(height: 10),
+              Expanded(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, ),
+                    child: Column(
+
+                      children: [
+                        Container(
+                          child: ProductItemContainer(product, false),
+                        ),
+                        Obx(
+                          ()=> Container(
+                            width: 280,
+                            height: 50,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Obx(()=> Text('  K${formatNumber((double.parse(product.price)*qty.value))}', style: title1)),
+                                Row(
+                                  children: [
+                                    Container(
+                                      width: 35,
+                                      height: 35,
+                                      child: Button2(
+                                        height: 35,
+                                        width: 35,
+                                        content: Center(
+                                          child: Icon(Icons.remove, color: Colors.white,),
+                                        ),
+                                        tap: () {
+                                          qty.value>1?qty.value--:null;
+                                        },
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 35,
+                                      height: 50,
+                                      child: Center(child: Text('${qty.value}')),
+                                    ),
+                                    Container(
+                                      width: 35,
+                                      height: 35,
+                                      child: Button2(
+                                        height: 35,
+                                        width: 35,
+                                        content: Center(
+                                          child: Icon(Icons.add, color: Colors.white,),
+                                        ),
+                                        tap: () {
+                                          qty.value<int.parse(product.quantity)?qty.value++:null;
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Divider(color: Karas.background,),
+                        Spacer(),
+                        Row(
+                          children: [
+                            Expanded(
+                              child:
+                                 Button1(
+                                   height: 35,
+                                     label: 'Checkout', tap: ()async{
+                                   _cartController.addToCart(CartItemModel(product: {'productId':'${product.id}', 'quantity':'${qty.value}'}, qty: qty.value, price: int.parse(product.price), tax: double.parse(product.tax), datetime: '${DateTime.now()}'));
+                                   Get.back();
+                                   Get.to(()=>Checkout());
+                                   }),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20)
+                      ],
+                    ),
+
+                  )
+              )
+            ]
+          ),
+        ),
+      ),
+    );
+
+
   }
 
 

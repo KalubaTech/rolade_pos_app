@@ -6,8 +6,11 @@ import 'package:get/get.dart';
 import 'package:rolade_pos/components/card_items_header.dart';
 import 'package:rolade_pos/components/form_components/button2.dart';
 import 'package:rolade_pos/controllers/ordersController.dart';
+import 'package:rolade_pos/controllers/products_controller.dart';
 import 'package:rolade_pos/controllers/store_controller.dart';
 import 'package:rolade_pos/helpers/charts.dart';
+import 'package:rolade_pos/models/order_product_model.dart';
+import 'package:rolade_pos/models/product_model.dart';
 import 'package:rolade_pos/styles/colors.dart';
 import 'package:rolade_pos/styles/title_styles.dart';
 import 'package:touch_ripple_effect/touch_ripple_effect.dart';
@@ -36,13 +39,11 @@ class _SalesOverviewState extends State<SalesOverview> {
   FirebaseFirestore fs = FirebaseFirestore.instance;
 
   StoreController _storeController = Get.find();
-
   OrdersController _ordersController = Get.find();
+  ProductsController _productsController = Get.find();
 
   @override
   Widget build(BuildContext context) {
-
-
 
     return SafeArea(
         child: GetBuilder<OrdersController>(
@@ -167,7 +168,7 @@ class _SalesOverviewState extends State<SalesOverview> {
                             return EasyPaginatedTable(
                               height: 400,
                               width: MediaQuery.of(context).size.width,
-                              rowTail: false,
+                              rowTail: true,
                               columnSpacing: 20,
                               rowsPerPage: 6,
                               columnStyle: ColumnStyle(
@@ -182,7 +183,66 @@ class _SalesOverviewState extends State<SalesOverview> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              onEdit: (index) {},
+                              onEdit: (index) async{
+                                OrderModel order = data[index];
+
+                                List<OrderProductModel> orderedProducts = [];
+
+                                for(Map<dynamic,dynamic>item in order.products){
+                                  await _productsController.products.value.where((element){
+                                    return element.id == item['productId'];
+                                  }).map((e){
+                                    orderedProducts.add(
+                                        OrderProductModel(name: e.productName, price: e.price, qty: item['qty'], image: e.images.first)
+                                    );
+                                  });
+                                }
+
+                                Get.bottomSheet(
+                                    Container(
+                                      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(20)
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            width: double.infinity,
+                                            height: 60,
+                                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                            decoration: BoxDecoration(
+                                              color: Karas.primary,
+                                              borderRadius: BorderRadius.only(
+                                                  topRight: Radius.circular(20),
+                                                  topLeft: Radius.circular(20)
+                                              )
+                                            ),
+                                            child: Text(order.ordID, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),)
+                                          ),
+                                          Expanded(
+                                            child: Container(
+                                              child: Column(
+                                                children: [
+                                                  ListView(
+                                                    shrinkWrap: true,
+                                                    children: [
+                                                      ...orderedProducts.map((e) => ListTile(
+                                                        title: Text(e.name),
+                                                        trailing: Text(e.qty)
+                                                      ))
+                                                    ],
+                                                  )
+                                                ],
+                                              )
+                                            ),
+                                          )
+                                        ],
+                                      )
+                                    ),
+                                );
+                              },
                               onDelete: (index) {},
                               columns: const ['Order No.', 'Total Amount', 'Tax'],
                               rows:  data.map<Map<String,String>>((e) =>

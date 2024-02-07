@@ -79,7 +79,7 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: CardItems(
                   head: CardItemsHeader(
-                    title: 'Employees / Sales Personnel',
+                    title: 'Cashiers',
                     seeallbtn: _userController.user.value.email==_storeController.store.value.email?TouchRippleEffect(
                       rippleColor: Colors.green.withOpacity(0.3),
                       borderRadius: BorderRadius.circular(20),

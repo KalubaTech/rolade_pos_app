@@ -1,4 +1,4 @@
-
+import 'package:ionicons/ionicons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_enhanced_barcode_scanner/flutter_enhanced_barcode_scanner.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,6 +10,7 @@ import 'package:rolade_pos/views/home.dart';
 import 'package:rolade_pos/views/product_views/product_entry.dart';
 import 'package:rolade_pos/views/settings/settings_screen.dart';
 import 'package:rolade_pos/views/sign_in_views/sign_up.dart';
+import 'package:rolade_pos/views/store/stock.dart';
 import 'package:rolade_pos/views/store/store.dart';
 import 'package:stylish_bottom_bar/model/bar_items.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
@@ -20,7 +21,7 @@ import '../helpers/sign_up_helper.dart';
 import '../styles/colors.dart';
 import 'package:get/get.dart';
 import 'package:badges/badges.dart' as badges;
-
+import 'package:decorated_icon/decorated_icon.dart';
 import 'cart/cart.dart';
 import 'dashboard/dashboard.dart';
 
@@ -84,7 +85,7 @@ class _PagesAnchorState extends State<PagesAnchor> {
                }else{
                  player.setAsset('assets/barcode_scanned.mp3');
                  player.play();
-                 _methods.productBarcodeDialog(barcode);
+                 _methods.productBarcodeDialog(barcode, player);
                }
                },
              child: CircleAvatar(
@@ -103,21 +104,43 @@ class _PagesAnchorState extends State<PagesAnchor> {
            ),
            items: [
              BottomBarItem(
-               icon: Icon(Icons.dashboard),
+               icon: Icon(Ionicons.home),
                title: Text('Dashbord', style: TextStyle(fontSize: 10),),
                backgroundColor: Colors.white,
                selectedColor: Colors.orange,
+               selectedIcon: DecoratedIcon(
+                 Ionicons.home,
+                 color: Colors.orange,
+                 size: 24.0,
+                 shadows: [
+                   BoxShadow(
+                     blurRadius: 12.0,
+                     color: Colors.white,
+                   ),
+                 ],
+               ),
              ),
              BottomBarItem(
-               icon: Icon(Icons.store),
+               icon: Icon(Ionicons.storefront),
                title: const Text('Store', style: TextStyle(fontSize: 10),),
                backgroundColor: Colors.white,
-               selectedColor: Colors.orange
+               selectedColor: Colors.orange,
+               selectedIcon: DecoratedIcon(
+                 Ionicons.storefront,
+                 color: Colors.orange,
+                 size: 24.0,
+                 shadows: [
+                   BoxShadow(
+                     blurRadius: 12.0,
+                     color: Colors.white,
+                   ),
+                 ],
+               ),
              ),
              BottomBarItem(
                icon: GetBuilder<CartController>(
                 builder: (controller)=> badges.Badge(
-                   child: Icon(Icons.shopping_cart),
+                   child:Icon(Ionicons.cart,),
                    badgeContent: Text('${controller.cart.value.length}', style: TextStyle(color: Colors.white, fontSize: 10),),
                   showBadge: controller.cart.value.length>0?true:false,
                  ),
@@ -125,13 +148,43 @@ class _PagesAnchorState extends State<PagesAnchor> {
                title: const Text('Cart',style: TextStyle(fontSize: 10),),
                backgroundColor: Colors.white,
                selectedColor: Colors.orange,
-               badgeColor: Colors.orange
+               badgeColor: Colors.orange,
+               selectedIcon: DecoratedIcon(
+                 Ionicons.cart,
+                 color: Colors.orange,
+                 size: 24.0,
+                 shadows: [
+                   BoxShadow(
+                     blurRadius: 42.0,
+                     color:Karas.background,
+                   ),
+                   BoxShadow(
+                     blurRadius: 12.0,
+                     color: Colors.white,
+                   ),
+                 ],
+               ),
              ),
              BottomBarItem(
-               icon: Icon(Icons.settings),
-               title: const Text('Settings',style: TextStyle(fontSize: 10),),
+               icon:  Icon(Ionicons.pricetag,),
+               title: const Text('Stock',style: TextStyle(fontSize: 10),),
                backgroundColor: Colors.white,
-               selectedColor: Colors.orange
+               selectedColor: Colors.orange,
+               selectedIcon: DecoratedIcon(
+                 Ionicons.pricetag,
+                 color: Colors.orange,
+                 size: 24.0,
+                 shadows: [
+                   BoxShadow(
+                     blurRadius: 42.0,
+                     color:Karas.background,
+                   ),
+                   BoxShadow(
+                     blurRadius: 12.0,
+                     color: Colors.white,
+                   ),
+                 ],
+               ),
              ),
            ],
            fabLocation: StylishBarFabLocation.center,
@@ -153,7 +206,7 @@ class _PagesAnchorState extends State<PagesAnchor> {
             Dashboard(),
             Store(),
             Cart(),
-            SettingsScreen()
+            Stock()
           ],
         ),
       ),
