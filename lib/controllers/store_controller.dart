@@ -17,6 +17,7 @@ class StoreController extends GetxController{
           address: '',
           district: '',
           province: '',
-          status: ''
+          status: '',
+          admins: []
       ).obs;
 }

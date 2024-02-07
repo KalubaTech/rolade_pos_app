@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:draggable_home/draggable_home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:rolade_pos/components/card_items.dart';
 import 'package:rolade_pos/components/card_items_header.dart';
 import 'package:rolade_pos/controllers/store_controller.dart';
@@ -102,15 +103,22 @@ class SettingsScreen extends StatelessWidget {
                           itemCount: snapshot.data!.size,
                           itemBuilder: (context,index){
                             return snapshot.data!.docs[index].get('user')!=user.email?ListTile(
-                              title: Text('${snapshot.data!.docs[index].get('name')}', style: TextStyle(color: snapshot.data!.docs[index].get('active')?Colors.black:Colors.red,fontWeight: !snapshot.data!.docs[index].get('active')?FontWeight.normal:FontWeight.w500),),
+                              title: Row(
+                                children: [
+                                  Text('${snapshot.data!.docs[index].get('name')}', style: TextStyle(color: snapshot.data!.docs[index].get('active')?Colors.black:Colors.red,fontWeight: !snapshot.data!.docs[index].get('active')?FontWeight.normal:FontWeight.w500),),
+                                  _storeController.store.value.admins.contains(snapshot.data!.docs[index].get('user'))?Icon(Icons.admin_panel_settings):Container(),
+                                ],
+                              ),
                               subtitle: Text('${snapshot.data!.docs[index].get('user')}', style: TextStyle(fontSize: 13),),
-                              trailing: _userController.user.value.email==_storeController.store.value.email?GestureDetector(
+                              trailing: _storeController.store.value.admins.contains(_userController.user.value.email)?GestureDetector(
                                 onTap: ()=>_methods.editUser(snapshot.data!.docs[index], fs),
+
                                 child: CircleAvatar(
                                     radius: 12,
                                     backgroundColor: Karas.secondary,
                                     child: Icon(Icons.edit, size: 15,)
                                 ),
+
                               ):Container(),
                             ):Container();
                           },
@@ -121,7 +129,7 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 18,),
-            _userController.user.value.email==_storeController.store.value.email?Padding(
+            _storeController.store.value.admins.contains(_userController.user.value.email)?Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: CardItems(
                   head: CardItemsHeader(
@@ -142,7 +150,7 @@ class SettingsScreen extends StatelessWidget {
               ),
             ):Container(),
             SizedBox(height: 20,),
-            _userController.user.value.email==_storeController.store.value.email?Padding(
+            _storeController.store.value.admins.contains(_userController.user.value.email)?Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: CardItems(
                   head: CardItemsHeader(

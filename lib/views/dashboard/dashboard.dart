@@ -1,8 +1,6 @@
-import 'dart:math';
-import 'package:animated_number/animated_number.dart';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:draggable_home/draggable_home.dart';
 import 'package:ionicons/ionicons.dart';
@@ -10,7 +8,6 @@ import 'package:rolade_pos/components/ad_container.dart';
 import 'package:rolade_pos/components/alert_banner.dart';
 import 'package:rolade_pos/components/card_items.dart';
 import 'package:rolade_pos/components/card_items_header.dart';
-import 'package:rolade_pos/components/cover_all_image_container.dart';
 import 'package:rolade_pos/components/drawer_header.dart';
 import 'package:rolade_pos/components/form_components/button1.dart';
 import 'package:rolade_pos/components/form_components/button2.dart';
@@ -19,9 +16,6 @@ import 'package:rolade_pos/controllers/ordersController.dart';
 import 'package:rolade_pos/controllers/products_controller.dart';
 import 'package:rolade_pos/helpers/google_sign_helper.dart';
 import 'package:rolade_pos/helpers/methods.dart';
-import 'package:rolade_pos/helpers/notifications.dart';
-import 'package:rolade_pos/models/order_model.dart';
-import 'package:rolade_pos/models/product_model.dart';
 import 'package:rolade_pos/views/product_views/search_product.dart';
 import 'package:rolade_pos/views/salses_views/sales_overview.dart';
 import 'package:rolade_pos/views/settings/settings_screen.dart';
@@ -33,12 +27,9 @@ import '../../controllers/store_controller.dart';
 import '../../controllers/user_controller.dart';
 import '../../components/category_item.dart';
 import '../../components/serachbar_mock.dart';
-import '../../controllers/user_controller.dart';
-import '../../helpers/charts.dart';
 import '../../styles/colors.dart';
 import '../../styles/title_styles.dart';
 import 'package:get/get.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../cart/cart.dart';
 import '../product_views/product_details.dart';
 import '../product_views/product_entry.dart';
@@ -169,7 +160,7 @@ class _DashboardState extends State<Dashboard> {
                               ),
                               title: 'Stock',
                               tap: (){
-                                Get.to(()=>Store(), transition: Transition.rightToLeft);
+                                Get.to(()=>Stock(), transition: Transition.rightToLeft);
                               },
                           ),
                           DrawerListItem(
@@ -279,7 +270,7 @@ class _DashboardState extends State<Dashboard> {
                 children: [
                   productsController.products.value.where((element) => int.parse(element.quantity)<4).toList().isNotEmpty&&_storeController.store.value.email==_userController.user.value.email?AlertBanner(
                       message: '${productsController.products.value.where((element) => int.parse(element.quantity)<int.parse(element.lowStockLevel)).toList().length} product(s) are running out of stock!',
-                      child: _userController.user.value.email==_storeController.store.value.email?Container(
+                      child: _storeController.store.value.admins.contains(_userController.user.value.email)?Container(
                         width: 85,
                         child: Button2(content: Text('Re-stock', style: TextStyle(color: Colors.white),), tap: (){
                             Get.to(()=>Stock());
@@ -443,19 +434,6 @@ class _DashboardState extends State<Dashboard> {
                                         prefix: 'K'
                                     ),
                                   ),
-                                  /* Container(
-                                          padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 1),
-                                          child: Row(
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Icon((percentageChange.isNaN || percentageChange.isInfinite?0:percentageChange)<1?Icons.trending_down:Icons.trending_up, color: (percentageChange.isNaN || percentageChange.isInfinite?0:percentageChange)<1?Colors.deepOrange:Colors.blue),
-                                                  Text('  ${_ordersController.orders.length<2?100:(percentageChange.isNaN || percentageChange.isInfinite?0:percentageChange)}%', style: TextStyle(fontSize: 14, color:(percentageChange.isNaN || percentageChange.isInfinite?0:percentageChange)<1?Colors.red:Colors.blue, fontWeight: FontWeight.w700),),
-                                                ],
-                                              ),
-                                            ],
-                                          )
-                                      ),*/
                                 ],
                               ),
                             ),

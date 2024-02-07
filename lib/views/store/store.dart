@@ -15,14 +15,11 @@ import 'package:rolade_pos/styles/title_styles.dart';
 import 'package:rolade_pos/views/product_views/product_entry.dart';
 import 'package:simple_grouped_listview/simple_grouped_listview.dart';
 import 'package:touch_ripple_effect/touch_ripple_effect.dart';
-
 import '../../components/category_item.dart';
 import '../../controllers/products_controller.dart';
 import '../../controllers/store_controller.dart';
 import '../../helpers/methods.dart';
 import 'package:get/get.dart';
-
-import '../../models/product_model.dart';
 import '../product_views/products_by_category.dart';
 
 class Store extends StatelessWidget {
@@ -103,7 +100,7 @@ class Store extends StatelessWidget {
                   child: CardItems(
                     head: CardItemsHeader(
                       title: 'Categories',
-                      seeallbtn: _userController.user.value.email==_storeController.store.value.email?InkWell(
+                      seeallbtn: _storeController.store.value.admins.contains(_userController.user.value.email)?InkWell(
                           child: Text('Add', style: title3,),
                           onTap: ()=>_methods.addCategory(fs),
                       ):Container(),
@@ -172,7 +169,7 @@ class Store extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 18),
                   child: CardItems(
-                    head: CardItemsHeader(title: 'Products', seeallbtn: _userController.user.value.email==_storeController.store.value.email?InkWell(
+                    head: CardItemsHeader(title: 'Products', seeallbtn: _storeController.store.value.admins.contains(_userController.user.value.email)?InkWell(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 2),
                           child: Text('Add', style: title3,),

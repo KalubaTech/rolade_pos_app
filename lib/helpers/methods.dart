@@ -77,6 +77,7 @@ class Methods {
           district: storeDocument.get('district'),
           province: storeDocument.get('province'),
           status: storeDocument.get('status'),
+          admins: storeDocument.get('admins')
 
         );
 
@@ -385,7 +386,9 @@ class Methods {
     nameController.text = user.get('name');
     
     var isActive = false.obs;
+    var isAdmin = false.obs;
 
+    isAdmin.value = _storeController.store.value.admins.contains(user.get('user'));
     isActive.value = user.get('active');
 
     Get.bottomSheet(
@@ -399,13 +402,13 @@ class Methods {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Edit Sales Person', style: title1),
+              Text('Edit Cashier', style: title1),
               SizedBox(height: 30),
               Expanded(
                 child: ListView(
                   shrinkWrap: true,
                   children: [
-                    Text('Store Name', style: title2,),
+                    Text('Full Name', style: title2,),
                     SizedBox(height: 5),
                     FormInputField(
                       controller: nameController,
@@ -417,8 +420,19 @@ class Methods {
                     Container(
                       child: Row(
                         children: [
-                          Text('Active', style: title3,),
-                          Obx(() => Switch(value: isActive.value, onChanged: (value)=>isActive.value = value))
+                          Row(
+                            children: [
+                              Text('Active', style: title3,),
+                              Obx(() => Switch(value: isActive.value, onChanged: (value)=>isActive.value = value)),
+                            ],
+                          ),
+                          SizedBox(width: 20,),
+                          Row(
+                            children: [
+                              Text('As Admin', style: title3,),
+                              Obx(() => Switch(value: isAdmin.value, onChanged: (value)=>isAdmin.value = value)),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -437,6 +451,19 @@ class Methods {
                             })
                                 .then((value){
                               nameController.clear();
+
+                              List<dynamic>admins = _storeController.store.value.admins;
+                              if(isAdmin.value){
+                                admins.add(user.get('user'));
+                              }else{
+                                admins.removeWhere(user.get('user'));
+                              }
+                              Map<String,dynamic> data = {
+                                'admins': admins
+                              };
+
+                              FirebaseFirestore.instance.collection('store')
+                                  .doc(_storeController.store.value.id).update(data);
 
                               Get.back();
                             });
