@@ -50,7 +50,7 @@ class _ProductsByCategoryState extends State<ProductsByCategory> {
                       child:  productController.products.isNotEmpty
                                 ?SearchableList<ProductModel>(
                               searchTextController: searchController,
-                              initialList: productController.products.value,
+                              initialList: productController.products.value.where((e)=>e.category==widget.category).toList(),
                               builder: (c,i,product) => ProductItemContainer(product, true),
                               filter: (value) => productController.products,
                               emptyWidget:  Container(

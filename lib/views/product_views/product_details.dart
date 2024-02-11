@@ -195,9 +195,9 @@ class ProductDetails extends StatelessWidget {
                              border: Border.all(color: Karas.primary),
                              width: 120,
                                height: 40,
-                               content: Text('${_cartController.cart.value.map((e) => e.product).toList().contains(product)?'View In Cart':'Add to Cart'}', style: title3,),
+                               content: Text('${_cartController.cart.value.map((e) => e.product['productId']).toList().contains(product.id)?'View In Cart':'Add to Cart'}', style: title3,),
                                tap: (){
-                                 _cartController.cart.value.map((e) => e.product).toList().contains(product)?
+                                 _cartController.cart.value.map((e) => e.product['productId']).toList().contains(product.id)?
                                      Get.to(()=>Cart()):_methods.productToCartDialog(product, context);
                                }
                            ),

@@ -12,6 +12,7 @@ import 'package:rolade_pos/helpers/methods.dart';
 import 'package:rolade_pos/models/order_model.dart';
 import 'package:rolade_pos/models/store_model.dart';
 import 'package:rolade_pos/models/user_model.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../models/product_model.dart';
 
@@ -46,41 +47,53 @@ pdfGen(
   pdf.addPage(
     Page(
       pageFormat:
-      PdfPageFormat.letter.copyWith(marginBottom: 1.5 * PdfPageFormat.cm),
-      margin: EdgeInsets.all(20),
+      PdfPageFormat.a6.copyWith(marginBottom: 0.5 * PdfPageFormat.cm),
+      margin: EdgeInsets.all(10),
       orientation: PageOrientation.portrait,
       build: (Context context) {
         return ListView(
           children: <Widget>[
             Container(
-              padding: EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.only(bottom: 8),
               alignment: Alignment.center,
-              child: Text(
-                "${store.name}",
-                style: TextStyle(
-                  color: PdfColors.black,
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Column(
+                children: [
+                  Text(
+                    "${store.name}",
+                    style: TextStyle(
+                      color: PdfColors.black,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    "Phone: ${store.phone}",
+                    style: TextStyle(
+                      color: PdfColors.black,
+                      fontSize: 8,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                ]
               ),
             ),
             Container(
-              padding: EdgeInsets.only(bottom: 20),
+              padding: EdgeInsets.only(bottom: 5),
               alignment: Alignment.center,
               child: Text(
                 "RECEIPT",
                 style: TextStyle(
                   color: PdfColors.red,
-                  fontSize: 30,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
             Container(
               height: 1.0,
-              width: 600.0,
+              width: 300.0,
               color: PdfColors.red,
-              margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,55 +105,61 @@ pdfGen(
                   children: <Widget>[
                     Container(
                       child: Text("${store.name}",
-                          style: TextStyle(color: PdfColors.red)),
+                          style: TextStyle(color: PdfColors.red, fontSize: 8)),
                     ),
                     Container(
-                      child: Text("${store.address}"),
+                      child: Text("${store.address}", style: TextStyle(fontSize: 8)),
                     ),
                   ],
                 ),
-                SizedBox(height: 30, width: 30),
-                Column(
+                SizedBox(height: 10, width: 10),
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    SizedBox(height: 30),
-                    Container(child: Text("Date / Time")),
-                    Container(child: Text("Order No.")),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    SizedBox(height: 30),
-                    Container(
-                        child: Text(
-                            "${formatDate(DateTime.now().toString())}")),
-                    Container(child: Text("${order.ordID}")),
-                  ],
-                ),
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        SizedBox(height: 10),
+                        Container(child: Text("Date / Time", style: TextStyle(fontSize: 6))),
+                        Container(child: Text("Order No.", style: TextStyle(fontSize: 6))),
+                      ],
+                    ),
+                    SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        SizedBox(height: 10),
+                        Container(
+                            child: Text(
+                                "${formatDate(order.date.toString())}", style: TextStyle(fontSize: 6))),
+                        Container(child: Text("${order.ordID}", style: TextStyle(fontSize: 6))),
+                      ],
+                    ),
+                  ]
+                )
               ],
             ),
             Container(
               height: 1.0,
-              width: 600.0,
+              width: 300.0,
               color: PdfColors.red,
-              margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              margin: const EdgeInsets.fromLTRB(0, 8, 0, 8),
             ),
             Container(
                 alignment: Alignment.centerLeft,
                 padding: EdgeInsets.all(5),
-                child: Text("Total items: ${order.products.length} ")),
+                child: Text("Total items: ${order.products.length} ", style: TextStyle(fontSize: 8)), ),
             Container(
               height: 1.0,
-              width: 600.0,
+              width: 300.0,
               color: PdfColors.red,
               margin: const EdgeInsets.fromLTRB(0, 5, 0, 5),
             ),
             Container(
               color: PdfColors.yellow200,
-              padding: EdgeInsets.all(20),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               child: Table(
                 border: TableBorder(),
                 tableWidth: TableWidth.max,
@@ -149,19 +168,19 @@ pdfGen(
                   TableRow(
                     children: <Widget>[
                       Container(
-                          child: Text("Product"),
+                          child: Text("Product", style: TextStyle(fontSize: 8)),
                           padding:
                           EdgeInsetsDirectional.symmetric(vertical: 5)),
                       Container(
-                          child: Text("Qty"),
+                          child: Text("Qty", style: TextStyle(fontSize: 8)),
                           padding:
                           EdgeInsetsDirectional.symmetric(vertical: 5)),
                       Container(
-                          child: Text("Unit Price"),
+                          child: Text("Unit Price", style: TextStyle(fontSize: 8)),
                           padding:
                           EdgeInsetsDirectional.symmetric(vertical: 5)),
                       Container(
-                          child: Text("Total"),
+                          child: Text("Total", style: TextStyle(fontSize: 8)),
                           padding:
                           EdgeInsetsDirectional.symmetric(vertical: 5)),
                     ],
@@ -185,11 +204,11 @@ pdfGen(
                             SizedBox(),
                             Container(
                                 child: Text("Subtotal",
-                                    textAlign: TextAlign.right)),
+                                    textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                             SizedBox(width: 15),
                             Container(
-                                child: Text("K${subtotal}",
-                                    textAlign: TextAlign.right)),
+                                child: Text("K${_methods.formatNumber(subtotal)}",
+                                    textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                           ],
                         ),
                         TableRow(
@@ -197,10 +216,10 @@ pdfGen(
                             SizedBox(),
                             Container(
                                 child: Text("Tax",
-                                    textAlign: TextAlign.right)),
+                                    textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                             SizedBox(width: 15),
                             Container(
-                                child: Text("K${tax}", textAlign: TextAlign.right)),
+                                child: Text("K${_methods.formatNumber(tax)}", textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                           ],
                         ),
                         TableRow(
@@ -209,10 +228,10 @@ pdfGen(
                             Container(
                                 child: Text("Grand Total",
                                     style: TextStyle(fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.right)),
+                                    textAlign: TextAlign.right,)),
                             SizedBox(width: 15),
                             Container(
-                                child: Text("K${total}",
+                                child: Text("K${_methods.formatNumber(total)}",
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                     textAlign: TextAlign.right)),
                           ],
@@ -234,11 +253,11 @@ pdfGen(
                             children: <Widget>[
                               SizedBox(),
                               Container(
-                                  child: Text("Cash", textAlign: TextAlign.right)),
+                                  child: Text("Cash", textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                               SizedBox(width: 15),
                               Container(
-                                  child: Text("K${cash}",
-                                      textAlign: TextAlign.right)),
+                                  child: Text("K${_methods.formatNumber(cash)}",
+                                      textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                             ],
                           ),
                           TableRow(
@@ -246,11 +265,11 @@ pdfGen(
                               SizedBox(),
                               Container(
                                   child: Text("Change",
-                                      textAlign: TextAlign.right)),
+                                      textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                               SizedBox(width: 15),
                               Container(
-                                  child: Text("K${change}",
-                                      textAlign: TextAlign.right)),
+                                  child: Text("K${_methods.formatNumber(change)}",
+                                      textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                             ],
                           ),
                         ],
@@ -263,20 +282,20 @@ pdfGen(
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Container(child: Text("${store.name}")),
-                    Container(child: Text('${user.displayName}')),
-                    Container(child: Text("Sales Attendant")),
+                    Container(child: Text("${store.name}", style: TextStyle(fontSize: 8))),
+                    Container(child: Text('${user.displayName}',style: TextStyle(fontSize: 8))),
+                    Container(child: Text("Cashier", style: TextStyle(fontSize: 8))),
                   ],
                 )
               ],
             ),
             Container(
               height: 1.0,
-              width: 600.0,
+              width: 300.0,
               color: PdfColors.black,
               margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
             ),
-            Text("THANK YOU! CALL AGAIN."),
+            Text("THANK YOU! CALL AGAIN.", style: TextStyle(fontSize: 8)),
           ],
         );
       },
@@ -318,17 +337,17 @@ List<TableRow> generateTableRows(
       TableRow tableRow = TableRow(
         children: <Widget>[
           Container(
-              child: Text("${receiptProduct.name}"),
-              padding: EdgeInsetsDirectional.symmetric(vertical: 4)),
+              child: Text("${receiptProduct.name}", style: TextStyle(fontSize: 8)),
+              padding: EdgeInsetsDirectional.symmetric(vertical: 2)),
           Container(
-              child: Text("${receiptProduct.qty}"),
-              padding: EdgeInsetsDirectional.symmetric(vertical: 4)),
+              child: Text("${receiptProduct.qty}", style: TextStyle(fontSize: 8)),
+              padding: EdgeInsetsDirectional.symmetric(vertical: 2)),
           Container(
-              child: Text("${receiptProduct.unityPrice}"),
-              padding: EdgeInsetsDirectional.symmetric(vertical: 4)),
+              child: Text("${receiptProduct.unityPrice}", style: TextStyle(fontSize: 8)),
+              padding: EdgeInsetsDirectional.symmetric(vertical: 2)),
           Container(
-              child: Text("${receiptProduct.totalPrice}"),
-              padding: EdgeInsetsDirectional.symmetric(vertical: 4)),
+              child: Text("${receiptProduct.totalPrice}", style: TextStyle(fontSize: 8)),
+              padding: EdgeInsetsDirectional.symmetric(vertical: 2)),
         ],
       );
 

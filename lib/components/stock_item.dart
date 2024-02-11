@@ -3,17 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:rolade_pos/components/form_components/button1.dart';
+import 'package:rolade_pos/controllers/cart_controller.dart';
 import 'package:rolade_pos/styles/colors.dart';
 import 'package:rolade_pos/views/product_views/product_details.dart';
 import '../helpers/methods.dart';
 import '../models/product_model.dart';
 import '../styles/title_styles.dart';
+import '../views/cart/cart.dart';
 
 class StockItem extends StatelessWidget {
   ProductModel product;
   StockItem({required this.product});
   
   Methods _methods = Methods();
+
+  CartController _cartController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +82,14 @@ class StockItem extends StatelessWidget {
                             tap: ()=>_methods.productQtyDialog(product, context)
                         ),
                         SizedBox(width: 10,),
+                        _cartController.cart.value.map((e) => e.product['productId']).toList().contains(product.id)?
+                        Button1(
+                            backgroundColor: Karas.background,
+                            textStyle: TextStyle(color: Karas.primary, fontWeight: FontWeight.bold),
+                            width: 100,
+                            label: 'View In Cart',
+                            tap: ()=>Get.to(()=>Cart())
+                        ):
                         Button1(
                             backgroundColor: Karas.background,
                             textStyle: TextStyle(color: Karas.primary, fontWeight: FontWeight.bold),

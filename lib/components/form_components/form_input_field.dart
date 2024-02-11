@@ -9,6 +9,7 @@ class FormInputField extends StatelessWidget{
   IconData? prefixIcon;
   Color? backgroundColor;
   bool isNumeric;
+  FocusNode? focus;
 
 
   FormInputField({
@@ -17,7 +18,8 @@ class FormInputField extends StatelessWidget{
     this.label,
     this.prefixIcon,
     this.backgroundColor,
-    required this.isNumeric
+    required this.isNumeric,
+    this.focus
   });
 
 
@@ -30,6 +32,7 @@ class FormInputField extends StatelessWidget{
       ),
       child: TextField(
         controller: controller,
+        focusNode: focus??FocusNode(),
         keyboardType: isNumeric!?TextInputType.number:TextInputType.text,
         inputFormatters: isNumeric!?<TextInputFormatter>[
           FilteringTextInputFormatter.digitsOnly

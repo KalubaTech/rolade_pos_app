@@ -1,7 +1,4 @@
 
-import 'dart:ui';
-import 'dart:ui';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -9,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:nepali_date_picker/nepali_date_picker.dart';
+
 import 'package:rolade_pos/components/form_components/button2.dart';
 import 'package:rolade_pos/components/product_item_container.dart';
 import 'package:rolade_pos/controllers/cart_controller.dart';
@@ -32,11 +30,7 @@ import '../models/workday_model.dart';
 import '../styles/colors.dart';
 import '../styles/title_styles.dart';
 import 'package:intl/intl.dart';
-import 'dart:typed_data';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
-
+import '../views/cart/cart.dart';
 import '../views/checkout.dart';
 import 'notifications.dart';
 
@@ -388,7 +382,7 @@ class Methods {
     var isActive = false.obs;
     var isAdmin = false.obs;
 
-    isAdmin.value = _storeController.store.value.admins.contains(user.get('user'));
+    isAdmin.value = _storeController.store.value.admins.contains('${user.get('user')}');
     isActive.value = user.get('active');
 
     Get.bottomSheet(
@@ -454,9 +448,9 @@ class Methods {
 
                               List<dynamic>admins = _storeController.store.value.admins;
                               if(isAdmin.value){
-                                admins.add(user.get('user'));
+                                admins.add('${user.get('user')}');
                               }else{
-                                admins.removeWhere(user.get('user'));
+                                admins.remove('${user.get('user')}');
                               }
                               Map<String,dynamic> data = {
                                 'admins': admins
@@ -464,6 +458,7 @@ class Methods {
 
                               FirebaseFirestore.instance.collection('store')
                                   .doc(_storeController.store.value.id).update(data);
+                                 _storeController.update();
 
                               Get.back();
                             });
@@ -880,12 +875,26 @@ class Methods {
                                 Expanded(
                                     child: Button2(
                                         backgroundColor: Colors.orange,
-                                        content: Text('Add to Cart',style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),),
+                                        content: Text('${_cartController.cart.value.map((e) => e.product['productId']).toList().contains(product.id)?'View In Cart':'Add to Cart'}',style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),),
                                         tap: (){
-                                          CartItemModel item = CartItemModel(product: {'productId':product.id,'quantity':'${qty.value}'}, qty: qty.value, price: (qty.value.toDouble()*double.parse(product.price)).toInt(),tax: (qty.value * double.parse(product.tax)), datetime: '${DateTime.now()}');
+                                          if(_cartController.cart.value.map((e) => e.product['productId']).toList().contains(product.id)){
+                                            Get.to(()=>Cart());
+                                          }else{
+                                                CartItemModel item = CartItemModel(product
+                                                : {
+                                            'productId' : product.id, 'qty'
+                                                : '${qty.value}'
+                                            }, qty : qty.value, price
+                                                : (qty.value.toDouble()*double.parse(product.price)).toInt(), tax
+                                              : (qty.value * double.parse(product.tax)), datetime
+                                              : '${DateTime.now()}');
                                           _cartController.addToCart(item);
                                           Get.back();
-                                          showSnackBar(context, 'Product Added to Cart, Successfully.');
+                                          showSnackBar(context,
+                                          'Product Added to Cart, Successfully.');
+
+                                          }
+
                                         }
                                     )
                                 ),
@@ -1049,12 +1058,17 @@ class Methods {
                               Expanded(
                                   child: Button2(
                                       backgroundColor: Colors.orange,
-                                      content: Text('Add to Cart',style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),),
+                                      content: Text('${_cartController.cart.value.map((e) => e.product['productId']).toList().contains(product.id)?'View In Cart':'Add to Cart'}',style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),),
                                       tap: (){
-                                        CartItemModel item = CartItemModel(product: {'productId':product.id,'qty':'${qty.value}'}, qty: qty.value, price: (qty.value.toDouble()*double.parse(product.price)).toInt(),tax: (qty.value * double.parse(product.tax)), datetime: '${DateTime.now()}');
-                                        _cartController.addToCart(item);
-                                        Get.back();
-                                        showSnackBar(context, 'Product Added to Cart, Successfully.');
+                                        if(_cartController.cart.value.map((e) => e.product['productId']).toList().contains(product.id)){
+                                          Get.to(()=>Cart());
+                                        }else{
+                                          CartItemModel item = CartItemModel(product: {'productId':product.id,'qty':'${qty.value}'}, qty: qty.value, price: (qty.value.toDouble()*double.parse(product.price)).toInt(),tax: (qty.value * double.parse(product.tax)), datetime: '${DateTime.now()}');
+                                          _cartController.addToCart(item);
+                                          Get.back();
+                                          showSnackBar(context, 'Product Added to Cart, Successfully.');
+                                        }
+
                                       }
                                   )
                               ),
@@ -1290,7 +1304,7 @@ class Methods {
   saleDirect(ProductModel product, context){
     TextEditingController amountController = TextEditingController();
     amountController.text = '0';
-    var qty = 0.obs;
+    var qty = 1.obs;
     var tax = 0.0.obs;
     var changeAmount = 0.0.obs;
     var receipt = true.obs;
@@ -1385,7 +1399,9 @@ class Methods {
                                  Button1(
                                    height: 35,
                                      label: 'Checkout', tap: ()async{
-                                   _cartController.addToCart(CartItemModel(product: {'productId':'${product.id}', 'quantity':'${qty.value}'}, qty: qty.value, price: int.parse(product.price), tax: double.parse(product.tax), datetime: '${DateTime.now()}'));
+                                   _cartController.cart.clear();
+                                     CartItemModel item = CartItemModel(product: {'productId':product.id,'qty':'${qty.value}'}, qty: qty.value, price: (qty.value.toDouble()*double.parse(product.price)).toInt(),tax: (qty.value * double.parse(product.tax)), datetime: '${DateTime.now()}');
+                                   _cartController.addToCart(item);
                                    Get.back();
                                    Get.to(()=>Checkout());
                                    }),
@@ -1404,6 +1420,26 @@ class Methods {
       ),
     );
 
+
+  }
+  
+  reduceStock({required String productID, required int qty})async{
+
+        try{
+          ProductModel product = _productsController.products.where((p0) => p0.id == productID).first;
+          int productQty = int.parse(product.quantity);
+          int reducedQty = productQty-qty;
+
+          print(productQty);
+
+          await FirebaseFirestore.instance.collection('product').doc(productID).update({'quantity':'$reducedQty'}).then((value){
+            _productsController.products.where((p0) => p0.id == productID).first.quantity = '$reducedQty';
+            _productsController.update();
+          });
+          print(productQty);
+        }catch(e){
+          print(e);
+        }
 
   }
 

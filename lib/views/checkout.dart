@@ -30,6 +30,8 @@ class Checkout extends StatelessWidget {
   UserController _userController = Get.find();
   Methods _methods = Methods();
 
+  int i = 0;
+
   TextEditingController cashController = TextEditingController();
 
   ProductsController _productsController = Get.find();
@@ -40,7 +42,7 @@ class Checkout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    double subtotal = cartController.cart.value.map<double>((e) => e.qty*e.price.toDouble()).toList().reduce((value, element) => value+element);
+    double subtotal = cartController.cart.value.map<double>((e) =>e.price.toDouble()).toList().reduce((value, element) => value+element);
     double tax = (cartController.cart.value.map((e) => e.tax.toDouble()).toList().reduce((value, element) => value+element).toDouble()/100)*subtotal;
     double total = subtotal + tax;
     var change = 0.0.obs;
@@ -53,7 +55,7 @@ class Checkout extends StatelessWidget {
     });
     return DraggableHome(
         appBarColor: Karas.primary,
-        title: Text('Checkout'),
+        title: Text('Payment'),
         alwaysShowTitle: true,
         headerExpandedHeight: 0.1,
         alwaysShowLeadingAndAction: true,
@@ -86,6 +88,7 @@ class Checkout extends StatelessWidget {
                       backgroundColor: cash.value<total?Karas.background:Colors.orange,
                       content: Text('Pay', style: TextStyle(color: cash.value<total?Colors.black87:Colors.white, fontWeight: FontWeight.bold),
                       ), tap: ()async{
+                        print(cartController.cart.value.map((e) => e.product).toList());
                       Get.dialog(
                         Container(
                           child: Center(
@@ -126,15 +129,16 @@ class Checkout extends StatelessWidget {
                         for (CartItemModel e in cartController.cart.value) {
                           ProductModel productSnapshot =
                               _productsController.products.value.where((element) => element.id==e.product['productId']).first;
+                            try {
+                              print("Processing item: ${e.product['productId']}");
+                              await _methods.reduceStock(productID: e.product['productId'].toString(), qty: int.parse(e.product['qty']!));
+                              print("Stock reduced successfully for: ${e.product['productId']}");
+                            } catch (e) {
+                              print("Error reducing stock for item $e");
+                              // Handle the error as per your application's requirements
+                            }
 
 
-                          int quantity = int.parse(productSnapshot.quantity.toString());
-                          int remainingQuantity = quantity - int.parse(e.product['quantity']??'0');
-
-                          await FirebaseFirestore.instance
-                              .collection('product')
-                              .doc(e.product['productId'])
-                              .update({'quantity': '$remainingQuantity'});
                         }
 
                         Get.back(); // Close the loading dialog
@@ -155,6 +159,7 @@ class Checkout extends StatelessWidget {
                         _orderController.orders.value.add(OrderModel.fromMap(orderData));
                         _orderController.update();
                         _methods.showSnackBar(context, 'Order Is Successful');
+
                         NotificationsHelper().showNotification('Ordered Successfully', 'An order of order No. ${orderNo} has completed succesfully!');
                         cartController.cart.clear();
                         cartController.update();
@@ -177,46 +182,61 @@ class Checkout extends StatelessWidget {
               head: CardItemsHeader(title: 'Order Summary'),
               body: Container(
                 padding: EdgeInsetsDirectional.symmetric(vertical: 10, horizontal: 20),
-                child: Table(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TableRow(
-                      children: [
-                        Container(),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('Subtotal', textAlign: TextAlign.right,),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
-                          child: Text('K${_methods.formatNumber(subtotal)}', textAlign: TextAlign.right,),
-                        )
-                      ]
+                    ... cartController.cart.value.map((e) {
+                      i++;
+                      ProductModel product = _productsController.products.value.where((prod)=>prod.id==e.product['productId']).first;
+                      return  Container(child: Row(
+                        children: [
+                          Text('$i. ${product.productName} x ${e.qty} (K${_methods.formatNumber(e.price.toDouble())})', style: title3,),
+                        ],
+                      ), padding: EdgeInsets.symmetric(vertical: 2),);
+                    }
                     ),
-                    TableRow(
+                    Table(
                       children: [
-                        Container(),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('Tax', textAlign: TextAlign.right,),
+                        TableRow(
+                          children: [
+                            Container(),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text('Subtotal', textAlign: TextAlign.right,),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
+                              child: Text('K${_methods.formatNumber(subtotal)}', textAlign: TextAlign.right,),
+                            )
+                          ]
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
-                          child: Text('K${_methods.formatNumber(tax)}', textAlign: TextAlign.right,),
-                        )
-                      ]
-                    ),
-                    TableRow(
-                      children: [
-                        Container(),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('Total', textAlign: TextAlign.right,),
+                        TableRow(
+                          children: [
+                            Container(),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text('Tax', textAlign: TextAlign.right,),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
+                              child: Text('K${_methods.formatNumber(tax)}', textAlign: TextAlign.right,),
+                            )
+                          ]
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20.0),
-                          child: Text('K${_methods.formatNumber(total)}', style: title2,textAlign: TextAlign.right,),
-                        )
-                      ]
+                        TableRow(
+                          children: [
+                            Container(),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text('Total', textAlign: TextAlign.right,),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20.0),
+                              child: Text('K${_methods.formatNumber(total)}', style: title2,textAlign: TextAlign.right,),
+                            )
+                          ]
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -258,7 +278,6 @@ class Checkout extends StatelessWidget {
                 ),
               )
           ),
-
         ]
     );
   }

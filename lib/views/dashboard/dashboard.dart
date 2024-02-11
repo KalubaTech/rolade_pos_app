@@ -37,6 +37,7 @@ import '../product_views/products_by_category.dart';
 import 'package:animated_digit/animated_digit.dart';
 import 'package:time_diffrence/time_diffrence.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
+import '../settings/code_generator.dart';
 import '../store/stock.dart';
 
 class Dashboard extends StatefulWidget {
@@ -185,6 +186,18 @@ class _DashboardState extends State<Dashboard> {
                               title: 'Settings',
                               tap: (){
                                 Get.to(()=>SettingsScreen(), transition: Transition.rightToLeft);
+                              },
+                          ),
+                          DrawerListItem(
+                            leading: Row(
+                              children: [
+                                Icon(Icons.qr_code_scanner, size: 18, color: Karas.primary,),
+                                SizedBox(width: 10,)
+                              ],
+                            ),
+                              title: 'Code Generator',
+                              tap: (){
+                                Get.to(()=>CodeGen(), transition: Transition.rightToLeft);
                               },
                           ),
                         ],

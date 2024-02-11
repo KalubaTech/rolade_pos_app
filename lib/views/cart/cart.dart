@@ -117,7 +117,7 @@ class _CartState extends State<Cart> {
                             children: [
                               Text('Total'),
                               Text(
-                                  'K${_methods.formatNumber(controller.cart.value.map<double>((e) => e.qty*e.price.toDouble()).toList().reduce((value, element) => value+element))}',
+                                  'K${_methods.formatNumber(controller.cart.value.map<double>((e) =>e.price.toDouble()).toList().reduce((value, element) => value+element))}',
                                   style: title1,
                               )
                             ],

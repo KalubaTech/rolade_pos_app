@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:draggable_home/draggable_home.dart';
 import 'package:flutter/material.dart';
@@ -9,16 +10,24 @@ import 'package:rolade_pos/controllers/ordersController.dart';
 import 'package:rolade_pos/controllers/products_controller.dart';
 import 'package:rolade_pos/controllers/store_controller.dart';
 import 'package:rolade_pos/helpers/charts.dart';
+import 'package:rolade_pos/helpers/date_formater.dart';
+import 'package:rolade_pos/helpers/pdf_gen.dart';
 import 'package:rolade_pos/models/order_product_model.dart';
 import 'package:rolade_pos/models/product_model.dart';
+import 'package:rolade_pos/models/user_model.dart';
 import 'package:rolade_pos/styles/colors.dart';
 import 'package:rolade_pos/styles/title_styles.dart';
+import 'package:rolade_pos/views/checkout.dart';
 import 'package:touch_ripple_effect/touch_ripple_effect.dart';
 
 import '../../components/card_items.dart';
 import '../../components/expandable_table.dart';
+import '../../controllers/cart_controller.dart';
+import '../../controllers/user_controller.dart';
 import '../../helpers/methods.dart';
+import '../../models/cart_item_model.dart';
 import '../../models/order_model.dart';
+import '../product_views/product_details.dart';
 
 
 class SalesOverview extends StatefulWidget {
@@ -41,6 +50,10 @@ class _SalesOverviewState extends State<SalesOverview> {
   StoreController _storeController = Get.find();
   OrdersController _ordersController = Get.find();
   ProductsController _productsController = Get.find();
+
+  CartController _cartController = Get.find();
+
+  UserController _userController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -189,14 +202,16 @@ class _SalesOverviewState extends State<SalesOverview> {
                                 List<OrderProductModel> orderedProducts = [];
 
                                 for(Map<dynamic,dynamic>item in order.products){
-                                  await _productsController.products.value.where((element){
+                                  print(item);
+                                  ProductModel product = _productsController.products.value.where((element){
                                     return element.id == item['productId'];
-                                  }).map((e){
-                                    orderedProducts.add(
-                                        OrderProductModel(name: e.productName, price: e.price, qty: item['qty'], image: e.images.first)
-                                    );
-                                  });
+                                  }).first;
+                                  orderedProducts.add(
+                                      OrderProductModel(id: product.id,name: product.productName, price: product.price, qty: item['quantity'], image: product.images.first)
+                                  );
                                 }
+
+                                print(orderedProducts);
 
                                 Get.bottomSheet(
                                     Container(
@@ -210,7 +225,6 @@ class _SalesOverviewState extends State<SalesOverview> {
                                         children: [
                                           Container(
                                             width: double.infinity,
-                                            height: 60,
                                             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                                             decoration: BoxDecoration(
                                               color: Karas.primary,
@@ -219,24 +233,108 @@ class _SalesOverviewState extends State<SalesOverview> {
                                                   topLeft: Radius.circular(20)
                                               )
                                             ),
-                                            child: Text(order.ordID, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),)
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text('Order Details', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),),
+                                                SizedBox(height: 10),
+                                                Text(order.ordID, style: TextStyle(color: Karas.background, fontWeight: FontWeight.w600, fontSize: 12),),
+                                                ],
+                                            )
                                           ),
+                                          Container(
+                                            width: double.infinity,
+                                            color: Karas.background,
+                                            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(formatDate(order.date), style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500, fontSize: 12),),
+                                                SizedBox(height: 5,),
+                                                Text('Total: K${order.total}  |  Cash: K${order.cash}  |  Change: K${order.change}', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500, fontSize: 11),),
+                                              ],
+                                            )
+                                          ),
+                                          SizedBox(height:5),
                                           Expanded(
                                             child: Container(
                                               child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
+                                                  Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                                    children: [
+                                                      Container(height: 1,color: Karas.background,width: 10,),
+                                                      Text('Products (${order.quantity})', style: title3,),
+                                                      Expanded(child: Container(height: 1,color: Karas.background,))
+                                                    ],
+                                                  ),
                                                   ListView(
                                                     shrinkWrap: true,
                                                     children: [
-                                                      ...orderedProducts.map((e) => ListTile(
-                                                        title: Text(e.name),
-                                                        trailing: Text(e.qty)
-                                                      ))
+                                                      ...orderedProducts.map((e){
+
+                                                        ProductModel product = _productsController.products.value.where((element) => element.id==e.id).first;
+
+                                                        return ListTile(
+                                                            onTap: ()=>Get.to(()=>ProductDetails(product)),
+                                                            leading: CachedNetworkImage(
+                                                              width: 40,
+                                                              height: 40,
+                                                              fit: BoxFit.cover,
+                                                              imageUrl: '${e.image}',
+                                                              errorWidget: (e,i,c)=>Icon(Icons.image),
+                                                            ),
+                                                            subtitle: Text('Price: K${e.price}   | Total: K${double.parse(e.price)*int.parse(e.qty)}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),),
+                                                            title: Text(e.name, style: title3,),
+                                                            trailing: CircleAvatar(child: Text(e.qty, style: title2,), radius: 10,backgroundColor: Karas.background,)
+                                                        );
+                                                      })
                                                     ],
                                                   )
                                                 ],
                                               )
                                             ),
+                                          ),
+                                          Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                            child: Row(
+                                              children: [
+                                                Expanded(child: Button2(
+                                                  backgroundColor: Karas.background,
+                                                    content: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(Icons.print, color: Karas.primary),
+                                                    Text('  Print', style: TextStyle(color: Karas.primary),)
+                                                  ],
+                                                ), tap: (){
+                                                    pdfGen(_storeController.store.value, _userController.user.value, order, order.total, order.subtotal, order.cash, order.change, order.tax, _productsController);
+                                                })),
+                                                SizedBox(width: 20,),
+                                                Expanded(child: Button2(content: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(Icons.payment, color: Colors.white,),
+                                                    Text('  Sell Again', style: TextStyle(color: Colors.white),)
+                                                  ],
+                                                ), tap: (){
+
+                                                    for(Map<String, String> prod in order.products.map((e) => {'productId':e['productId'], 'qty':e['quantity']})){
+                                                      ProductModel product = _productsController.products.where((p0) => p0.id==prod['productId']).first;
+                                                      CartItemModel cartItem = CartItemModel(product: prod, qty: int.parse(prod['qty']!), price: int.parse(product.price)*int.parse(prod['qty']!), tax: double.parse(product.tax), datetime: '${DateTime.now()}');
+
+                                                      _cartController.cart.value.clear();
+                                                      _cartController.cart.value.add(cartItem);
+                                                      _cartController.update();
+
+
+                                                      Get.to(()=>Checkout());
+                                                    }
+
+                                                })),
+                                              ],
+                                            )
                                           )
                                         ],
                                       )

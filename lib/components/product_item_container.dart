@@ -70,7 +70,8 @@ class ProductItemContainer extends StatelessWidget {
                                 width: 100,
                                 child: controller.cart.value.map((e) => e.product['productId']).toList().contains(product.id)?
                                 Button2(
-                                    content: Text('View In Cart', style: TextStyle(color: Colors.white),),
+                                    backgroundColor: Karas.background,
+                                    content: Text('View In Cart', style: title3),
                                     tap: (){
                                       Get.to(()=>Cart());
                                     }

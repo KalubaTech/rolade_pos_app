@@ -106,7 +106,7 @@ class SettingsScreen extends StatelessWidget {
                               title: Row(
                                 children: [
                                   Text('${snapshot.data!.docs[index].get('name')}', style: TextStyle(color: snapshot.data!.docs[index].get('active')?Colors.black:Colors.red,fontWeight: !snapshot.data!.docs[index].get('active')?FontWeight.normal:FontWeight.w500),),
-                                  _storeController.store.value.admins.contains(snapshot.data!.docs[index].get('user'))?Icon(Icons.admin_panel_settings):Container(),
+                                  _storeController.store.value.admins.contains(snapshot.data!.docs[index].get('user'))?Icon(Icons.admin_panel_settings, color: Colors.orange,):Container(),
                                 ],
                               ),
                               subtitle: Text('${snapshot.data!.docs[index].get('user')}', style: TextStyle(fontSize: 13),),
