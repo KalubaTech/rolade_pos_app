@@ -314,7 +314,7 @@ List<TableRow> generateTableRows(
   Methods _methods = Methods();
   for (var productData in orderProducts) {
     String productId = productData['productId'];
-    int qty = int.parse(productData['quantity']);
+    int qty = int.parse(productData['quantity']??productData['qty']);
 
     // Find the product using productId
     var product = allProducts

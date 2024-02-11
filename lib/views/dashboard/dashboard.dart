@@ -58,7 +58,7 @@ class _DashboardState extends State<Dashboard> {
 
   OrdersController _ordersController = Get.find();
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   GoogleSignInHelper signInHelper = GoogleSignInHelper();
 
@@ -100,7 +100,7 @@ class _DashboardState extends State<Dashboard> {
         double percentageChangeNxt = prevSales<nextSales?
         percentageChange:percentageChange;
 
-        return DraggableHome(
+        return Scaffold(
           key: _scaffoldKey,
           drawer: Container(
             height: double.infinity,
@@ -135,10 +135,10 @@ class _DashboardState extends State<Dashboard> {
                                 SizedBox(width: 10,)
                               ],
                             ),
-                              title: 'Sales Overview',
-                              tap: (){
-                                Get.to(()=>SalesOverview(), transition: Transition.rightToLeft);
-                              },
+                            title: 'Sales Overview',
+                            tap: (){
+                              Get.to(()=>SalesOverview(), transition: Transition.rightToLeft);
+                            },
                           ),
                           DrawerListItem(
                             leading: Row(
@@ -147,34 +147,34 @@ class _DashboardState extends State<Dashboard> {
                                 SizedBox(width: 10,)
                               ],
                             ),
-                              title: 'Cart',
-                              tap: (){
-                                Get.to(()=>Cart());
-                              },
+                            title: 'Cart',
+                            tap: (){
+                              Get.to(()=>Cart());
+                            },
                           ),
                           DrawerListItem(
-                              leading: Row(
-                                children: [
-                                  Icon(Ionicons.pricetag, size: 18, color: Karas.primary,),
-                                  SizedBox(width: 10,)
-                                ],
-                              ),
-                              title: 'Stock',
-                              tap: (){
-                                Get.to(()=>Stock(), transition: Transition.rightToLeft);
-                              },
+                            leading: Row(
+                              children: [
+                                Icon(Ionicons.pricetag, size: 18, color: Karas.primary,),
+                                SizedBox(width: 10,)
+                              ],
+                            ),
+                            title: 'Stock',
+                            tap: (){
+                              Get.to(()=>Stock(), transition: Transition.rightToLeft);
+                            },
                           ),
                           DrawerListItem(
-                              leading: Row(
-                                children: [
-                                  Icon(Icons.store, size: 18, color: Karas.primary,),
-                                  SizedBox(width: 10,)
-                                ],
-                              ),
-                              title: 'Store Account',
-                              tap: (){
-                                Get.to(()=>Store(), transition: Transition.rightToLeft);
-                              },
+                            leading: Row(
+                              children: [
+                                Icon(Icons.store, size: 18, color: Karas.primary,),
+                                SizedBox(width: 10,)
+                              ],
+                            ),
+                            title: 'Store Account',
+                            tap: (){
+                              Get.to(()=>Store(), transition: Transition.rightToLeft);
+                            },
                           ),
                           DrawerListItem(
                             leading: Row(
@@ -183,10 +183,10 @@ class _DashboardState extends State<Dashboard> {
                                 SizedBox(width: 10,)
                               ],
                             ),
-                              title: 'Settings',
-                              tap: (){
-                                Get.to(()=>SettingsScreen(), transition: Transition.rightToLeft);
-                              },
+                            title: 'Settings',
+                            tap: (){
+                              Get.to(()=>SettingsScreen(), transition: Transition.rightToLeft);
+                            },
                           ),
                           DrawerListItem(
                             leading: Row(
@@ -195,10 +195,10 @@ class _DashboardState extends State<Dashboard> {
                                 SizedBox(width: 10,)
                               ],
                             ),
-                              title: 'Code Generator',
-                              tap: (){
-                                Get.to(()=>CodeGen(), transition: Transition.rightToLeft);
-                              },
+                            title: 'Code Generator',
+                            tap: (){
+                              Get.to(()=>CodeGen(), transition: Transition.rightToLeft);
+                            },
                           ),
                         ],
                       ),
@@ -206,9 +206,9 @@ class _DashboardState extends State<Dashboard> {
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    color: Karas.secondary,
-                    borderRadius: BorderRadius.circular(20),
-                    border: BorderDirectional(top: BorderSide(color: Karas.background,width: 1))
+                      color: Karas.secondary,
+                      borderRadius: BorderRadius.circular(20),
+                      border: BorderDirectional(top: BorderSide(color: Karas.background,width: 1))
                   ),
                   height: 70,
                   child: Row(
@@ -232,339 +232,341 @@ class _DashboardState extends State<Dashboard> {
               ],
             ),
           ),
-          leading: Container(
-            margin: EdgeInsets.only(left: 20),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(40),
-              child: CachedNetworkImage(
-                width: 20,
-                height: 20,
-                imageUrl: _userController.user.value.photo,
-                errorWidget: (c,e,i)=>CircleAvatar(
-                  backgroundImage: AssetImage('assets/avatar_placeholder.jpg'),
+          body: DraggableHome(
+            leading: Container(
+              margin: EdgeInsets.only(left: 20),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(40),
+                child: CachedNetworkImage(
+                  width: 20,
+                  height: 20,
+                  imageUrl: _userController.user.value.photo,
+                  errorWidget: (c,e,i)=>CircleAvatar(
+                    backgroundImage: AssetImage('assets/avatar_placeholder.jpg'),
+                  ),
                 ),
               ),
+              width: 30,
             ),
-            width: 30,
-          ),
-          actions: [
-            IconButton(onPressed: (){
-              _scaffoldKey.currentState?.openDrawer();
-            }, icon: Icon(Icons.menu))
-          ],
-          title: Container(
-            child: HeaderAvatar(),
-          ),
-          alwaysShowLeadingAndAction: true,
-          headerExpandedHeight: 0.25,
-          appBarColor: Karas.primary,
-          headerWidget: Container(
-            padding: EdgeInsets.symmetric(horizontal: 0),
-            color: Karas.primary,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(height: 40),
-                GestureDetector(
-                  onTap: ()=>Get.to(()=>SearchProducts()),
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: SearchMock(placeholder: 'Search products')
-                  ),
-                )
-              ],
+            actions: [
+              IconButton(onPressed: (){
+                _scaffoldKey.currentState!.openDrawer();
+              }, icon: Icon(Icons.menu))
+            ],
+            title: Container(
+              child: HeaderAvatar(),
             ),
-          ),
-          backgroundColor: Karas.secondary,
-          body: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 15),
+            alwaysShowLeadingAndAction: true,
+            headerExpandedHeight: 0.25,
+            appBarColor: Karas.primary,
+            headerWidget: Container(
+              padding: EdgeInsets.symmetric(horizontal: 0),
+              color: Karas.primary,
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  productsController.products.value.where((element) => int.parse(element.quantity)<4).toList().isNotEmpty&&_storeController.store.value.email==_userController.user.value.email?AlertBanner(
-                      message: '${productsController.products.value.where((element) => int.parse(element.quantity)<int.parse(element.lowStockLevel)).toList().length} product(s) are running out of stock!',
-                      child: _storeController.store.value.admins.contains(_userController.user.value.email)?Container(
-                        width: 85,
-                        child: Button2(content: Text('Re-stock', style: TextStyle(color: Colors.white),), tap: (){
-                            Get.to(()=>Stock());
-                        }),
-                      ):Container(),
-                  ):Container(),
-                  StreamBuilder(
-                      stream: fs.collection('categories')
-                          .where('store_id',isEqualTo: _storeController.store.value.id)
-                          .snapshots(),
-                      builder: (context, snapshot) {
-                        return snapshot.hasData&&snapshot.data!.size>0?
-                        CardItems(
-                          head: CardItemsHeader(title: 'Categories (${snapshot.data!.size})',),
-                          body: Container(
-                            padding: EdgeInsets.symmetric(vertical: 15),
-                            height: 98,
-                            child: ListView(
-                              shrinkWrap: true,
-                              scrollDirection: Axis.horizontal,
-                              physics: BouncingScrollPhysics(),
-                              children:
-                              List.generate(snapshot.data!.size, (index) =>
-                                  Row(
-                                    children: [
-                                      index==0?SizedBox(width: 10,):Container(),
-                                      Container(
-                                          padding: EdgeInsets.symmetric(horizontal: 5),
-                                          child: TouchRippleEffect(
-                                              onTap: ()=>Get.to(()=>ProductsByCategory(snapshot.data!.docs[index].get('name'))),
-                                              rippleColor: Colors.grey.withOpacity(0.5),
-                                              borderRadius: BorderRadius.circular(8),
-                                              child: Column(
-                                                children: [
-                                                  CircleAvatar(
-                                                    backgroundColor: Karas.secondary,
-                                                    child: Icon(Icons.category_rounded),
-                                                  ),
-                                                  SizedBox(height: 10),
-                                                  Text('${snapshot.data!.docs[index].get('name')} (${productsController.products.value.where((element) => element.category==snapshot.data!.docs[index].get('name')).length})', style: title3,)
-                                                ],
-                                              )
-                                          )
-                                      ),
-                                      index==snapshot.data!.size-1?SizedBox(width: 10,):Container(),
-                                    ],
-                                  )
-                              ),
-                            ),
-                          ),
-                        )
-                            :Container();
-                      }
-                  ),
-                  SizedBox(height: 16,),
-                  _ordersController.orders.length>0?CardItems(
-                    head: CardItemsHeader(title: 'Sales Overview',
-                      seeallbtn: InkWell(
-                        onTap: ()=>Get.to(()=>SalesOverview()),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
-                          child: Text('See all', style: title3,),
-                        ),
-                      ),),
-                    body: Container(
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      height: 130,
-                      child: Container(
-                        padding: EdgeInsets.only(bottom: 10),
-                        child: ListView(
-                          scrollDirection: Axis.horizontal,
-                          physics: BouncingScrollPhysics(),
-                          children: [
-                            SizedBox(width: 20,),
-                            Container(
-                              width: 150,
-                              decoration: BoxDecoration(
-                                  color: Karas.background,
-                                  borderRadius: BorderRadius.circular(8)
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
-                                    child: InkWell(
-                                      onTap: ()async{
-                                        nextSalesDate = await _selectDate(context, nextSalesDate);
-                                        setState(() {
-                                          nextSales = _methods.salesByDate(nextSalesDate);
-                                        });
-                                      },
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('${convertToNaturalLanguageDate(DateTime.parse(nextSalesDate))}', style: title3,),
-                                          Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
-                                    child: AnimatedDigitWidget(
-                                        value: nextSales,
-                                        textStyle: title1,
-                                        duration: Duration(seconds: 2),
-                                        prefix: 'K'
-                                    ),
-                                  ),
-                                  Container(
-                                      padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 1),
-                                      child: Row(
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Icon((percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Icons.trending_down:Icons.trending_up, color: (percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Colors.deepOrange:Colors.blue),
-                                              Text('  ${_ordersController.orders.length<2?100:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt.ceil())}%', style: TextStyle(fontSize: 14, color:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Colors.red:Colors.blue, fontWeight: FontWeight.w700),),
-                                            ],
-                                          ),
-                                        ],
-                                      )
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(width: 10,),
-                            Container(
-                              width: 150,
-                              decoration: BoxDecoration(
-                                  color: Karas.orange,
-                                  borderRadius: BorderRadius.circular(8)
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
-                                    child: InkWell(
-                                      onTap: ()async{
-                                        prevSalesDate = await _selectDate(context, prevSalesDate);
-                                        setState(() {
-                                          prevSales = _methods.salesByDate(prevSalesDate);
-                                        });
-                                      },
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text('${convertToNaturalLanguageDate(DateTime.parse(prevSalesDate))}', style: title3,),
-                                          Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
-                                    child: AnimatedDigitWidget(
-                                        value: prevSales,
-                                        textStyle: title1,
-                                        duration: Duration(seconds: 2),
-                                        prefix: 'K'
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(width: 20,),
-                          ],
-                        ),
-                      ),
+                  SizedBox(height: 40),
+                  GestureDetector(
+                    onTap: ()=>Get.to(()=>SearchProducts()),
+                    child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: SearchMock(placeholder: 'Search products')
                     ),
-                  ):Container(),
-                  _ordersController.orders.length>0?Column(
-                    children: [
-                      SizedBox(height: 16,),
-                      Container(
-                        height: 150,
-                        child: FlutterCarousel(
-                          options: CarouselOptions(
-                            height: 150.0,
-                            showIndicator: false,
-                            slideIndicator: CircularSlideIndicator(),
-                            clipBehavior: Clip.none,
-                            autoPlay: true,
-                            autoPlayCurve: Curves.slowMiddle,
-                            viewportFraction: 0.999
-                          ),
-                          items:  _productsController.products.where((p0) => true).toList()
-                          .map((product) {
-                            return Builder(
-                              builder: (BuildContext context) {
-                                return Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    margin: EdgeInsets.symmetric(horizontal: 5.0),
-                                    child: AdContainer(
-                                      image: '${product.images.first}',
-                                      backgroundColor: Karas.background,
-                                      title: '${product.productName}',
-                                      details: '${product.description}',
-                                      orderbtn: Button1(label: 'View', tap: (){
-                                        Get.to(()=>ProductDetails(product));
-                                      }),
-                                    )
-                                );
-                              },
-                            );
-                          }).toList(),
-                        )
-                      ),
-                    ],
-                  ):Container(),
-                  SizedBox(height: 18,),
+                  )
                 ],
               ),
             ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 18),
-              child: CardItems(
-                head: CardItemsHeader(title: 'Products', seeallbtn: InkWell(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 2),
-                      child: Text('Add', style: title3,),
+            backgroundColor: Karas.secondary,
+            body: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 15),
+                child: Column(
+                  children: [
+                    productsController.products.value.where((element) => int.parse(element.quantity)<4).toList().isNotEmpty&&_storeController.store.value.email==_userController.user.value.email?AlertBanner(
+                        message: '${productsController.products.value.where((element) => int.parse(element.quantity)<int.parse(element.lowStockLevel)).toList().length} product(s) are running out of stock!',
+                        child: _storeController.store.value.admins.contains(_userController.user.value.email)?Container(
+                          width: 85,
+                          child: Button2(content: Text('Re-stock', style: TextStyle(color: Colors.white),), tap: (){
+                              Get.to(()=>Stock());
+                          }),
+                        ):Container(),
+                    ):Container(),
+                    StreamBuilder(
+                        stream: fs.collection('categories')
+                            .where('store_id',isEqualTo: _storeController.store.value.id)
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          return snapshot.hasData&&snapshot.data!.size>0?
+                          CardItems(
+                            head: CardItemsHeader(title: 'Categories (${snapshot.data!.size})',),
+                            body: Container(
+                              padding: EdgeInsets.symmetric(vertical: 15),
+                              height: 98,
+                              child: ListView(
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
+                                physics: BouncingScrollPhysics(),
+                                children:
+                                List.generate(snapshot.data!.size, (index) =>
+                                    Row(
+                                      children: [
+                                        index==0?SizedBox(width: 10,):Container(),
+                                        Container(
+                                            padding: EdgeInsets.symmetric(horizontal: 5),
+                                            child: TouchRippleEffect(
+                                                onTap: ()=>Get.to(()=>ProductsByCategory(snapshot.data!.docs[index].get('name'))),
+                                                rippleColor: Colors.grey.withOpacity(0.5),
+                                                borderRadius: BorderRadius.circular(8),
+                                                child: Column(
+                                                  children: [
+                                                    CircleAvatar(
+                                                      backgroundColor: Karas.secondary,
+                                                      child: Icon(Icons.category_rounded),
+                                                    ),
+                                                    SizedBox(height: 10),
+                                                    Text('${snapshot.data!.docs[index].get('name')} (${productsController.products.value.where((element) => element.category==snapshot.data!.docs[index].get('name')).length})', style: title3,)
+                                                  ],
+                                                )
+                                            )
+                                        ),
+                                        index==snapshot.data!.size-1?SizedBox(width: 10,):Container(),
+                                      ],
+                                    )
+                                ),
+                              ),
+                            ),
+                          )
+                              :Container();
+                        }
                     ),
-                    onTap: ()=>Get.to(()=>ProductEntry())
-                ),
-                ),
-                body: Container(
-                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 15),
-                  child: Column(
-                    children: [
-                            productsController.products.isNotEmpty?
-                            GroupedListView.grid(
-                              items: productsController.products.value,
-                              itemGrouper: (var e) => e.category,
-                              physics: NeverScrollableScrollPhysics(),
-                              headerBuilder: (context, e) => Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                      color: Karas.secondary,
-                                      margin: EdgeInsets.only(bottom: 10, top: 10),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(height: 5),
-                                          Text(
-                                            e,
-                                            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey),
-                                          ),
-                                          SizedBox(height: 5)
-                                        ],
+                    SizedBox(height: 16,),
+                    _ordersController.orders.length>0?CardItems(
+                      head: CardItemsHeader(title: 'Sales Overview',
+                        seeallbtn: InkWell(
+                          onTap: ()=>Get.to(()=>SalesOverview()),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
+                            child: Text('See all', style: title3,),
+                          ),
+                        ),),
+                      body: Container(
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                        height: 130,
+                        child: Container(
+                          padding: EdgeInsets.only(bottom: 10),
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            physics: BouncingScrollPhysics(),
+                            children: [
+                              SizedBox(width: 20,),
+                              Container(
+                                width: 150,
+                                decoration: BoxDecoration(
+                                    color: Karas.background,
+                                    borderRadius: BorderRadius.circular(8)
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
+                                      child: InkWell(
+                                        onTap: ()async{
+                                          nextSalesDate = await _selectDate(context, nextSalesDate);
+                                          setState(() {
+                                            nextSales = _methods.salesByDate(nextSalesDate);
+                                          });
+                                        },
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('${convertToNaturalLanguageDate(DateTime.parse(nextSalesDate))}', style: title3,),
+                                            Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                    Container(
+                                      padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
+                                      child: AnimatedDigitWidget(
+                                          value: nextSales,
+                                          textStyle: title1,
+                                          duration: Duration(seconds: 2),
+                                          prefix: 'K'
+                                      ),
+                                    ),
+                                    Container(
+                                        padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 1),
+                                        child: Row(
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Icon((percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Icons.trending_down:Icons.trending_up, color: (percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Colors.deepOrange:Colors.blue),
+                                                Text('  ${_ordersController.orders.length<2?100:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt.ceil())}%', style: TextStyle(fontSize: 14, color:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Colors.red:Colors.blue, fontWeight: FontWeight.w700),),
+                                              ],
+                                            ),
+                                          ],
+                                        )
+                                    ),
+                                  ],
+                                ),
                               ),
-                              shrinkWrap: true,
-                              mainAxisSpacing: 6,
-                              crossAxisSpacing: 15,
-                              gridItemBuilder:
-                                  (context, int countInGroup, int itemIndexInGroup, item, itemIndexInOriginalList) {
-                                    return TouchRippleEffect(
-                                      rippleColor: Colors.grey.withOpacity(0.4),
-                                      onTap: () {
-
-                                        _methods.productToCartDialog(item, context);
-                                      },
-                                      child: SmallProductContainer(image: '${item.images.first}', title: '${item.productName} (${item.quantity})', id: item.id, product: item,)
+                              SizedBox(width: 10,),
+                              Container(
+                                width: 150,
+                                decoration: BoxDecoration(
+                                    color: Karas.orange,
+                                    borderRadius: BorderRadius.circular(8)
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
+                                      child: InkWell(
+                                        onTap: ()async{
+                                          prevSalesDate = await _selectDate(context, prevSalesDate);
+                                          setState(() {
+                                            prevSales = _methods.salesByDate(prevSalesDate);
+                                          });
+                                        },
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text('${convertToNaturalLanguageDate(DateTime.parse(prevSalesDate))}', style: title3,),
+                                            Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
+                                      child: AnimatedDigitWidget(
+                                          value: prevSales,
+                                          textStyle: title1,
+                                          duration: Duration(seconds: 2),
+                                          prefix: 'K'
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 20,),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ):Container(),
+                    _ordersController.orders.length>0?Column(
+                      children: [
+                        SizedBox(height: 16,),
+                        Container(
+                          height: 150,
+                          child: FlutterCarousel(
+                            options: CarouselOptions(
+                              height: 150.0,
+                              showIndicator: false,
+                              slideIndicator: CircularSlideIndicator(),
+                              clipBehavior: Clip.none,
+                              autoPlay: true,
+                              autoPlayCurve: Curves.slowMiddle,
+                              viewportFraction: 0.999
+                            ),
+                            items:  _productsController.products.where((p0) => true).toList()
+                            .map((product) {
+                              return Builder(
+                                builder: (BuildContext context) {
+                                  return Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      margin: EdgeInsets.symmetric(horizontal: 5.0),
+                                      child: AdContainer(
+                                        image: '${product.images.first}',
+                                        backgroundColor: Karas.background,
+                                        title: '${product.productName}',
+                                        details: '${product.description}',
+                                        orderbtn: Button1(label: 'View', tap: (){
+                                          Get.to(()=>ProductDetails(product));
+                                        }),
+                                      )
                                   );
-                                  },
-                              crossAxisCount: 3,
-                            ): Container(),
+                                },
+                              );
+                            }).toList(),
+                          )
+                        ),
+                      ],
+                    ):Container(),
+                    SizedBox(height: 18,),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 18),
+                child: CardItems(
+                  head: CardItemsHeader(title: 'Products', seeallbtn: InkWell(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 2),
+                        child: Text('Add', style: title3,),
+                      ),
+                      onTap: ()=>Get.to(()=>ProductEntry())
+                  ),
+                  ),
+                  body: Container(
+                    padding: EdgeInsets.symmetric(vertical: 0, horizontal: 15),
+                    child: Column(
+                      children: [
+                              productsController.products.isNotEmpty?
+                              GroupedListView.grid(
+                                items: productsController.products.value,
+                                itemGrouper: (var e) => e.category,
+                                physics: NeverScrollableScrollPhysics(),
+                                headerBuilder: (context, e) => Row(
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        color: Karas.secondary,
+                                        margin: EdgeInsets.only(bottom: 10, top: 10),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(height: 5),
+                                            Text(
+                                              e,
+                                              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                                            ),
+                                            SizedBox(height: 5)
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                shrinkWrap: true,
+                                mainAxisSpacing: 6,
+                                crossAxisSpacing: 15,
+                                gridItemBuilder:
+                                    (context, int countInGroup, int itemIndexInGroup, item, itemIndexInOriginalList) {
+                                      return TouchRippleEffect(
+                                        rippleColor: Colors.grey.withOpacity(0.4),
+                                        onTap: () {
 
-                      SizedBox(height: 15,),
-                    ],
+                                          _methods.productToCartDialog(item, context);
+                                        },
+                                        child: SmallProductContainer(image: '${item.images.first}', title: '${item.productName} (${item.quantity})', id: item.id, product: item,)
+                                    );
+                                    },
+                                crossAxisCount: 3,
+                              ): Container(),
+
+                        SizedBox(height: 15,),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: 40)
-          ],
+              SizedBox(height: 40)
+            ],
+          ),
         );
       }
     );

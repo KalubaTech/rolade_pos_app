@@ -201,18 +201,20 @@ class _SalesOverviewState extends State<SalesOverview> {
 
                                 List<OrderProductModel> orderedProducts = [];
 
-                                for(Map<dynamic,dynamic>item in order.products){
+                                for(Map<dynamic,dynamic>item in order.products) {
                                   print(item);
-                                  ProductModel product = _productsController.products.value.where((element){
+                                  ProductModel product = _productsController
+                                      .products.value.where((element) {
                                     return element.id == item['productId'];
                                   }).first;
                                   orderedProducts.add(
-                                      OrderProductModel(id: product.id,name: product.productName, price: product.price, qty: item['quantity'], image: product.images.first)
+                                      OrderProductModel(id: product.id,
+                                          name: product.productName,
+                                          price: product.price,
+                                          qty: item['quantity'] ?? item['qty'],
+                                          image: product.images.first)
                                   );
                                 }
-
-                                print(orderedProducts);
-
                                 Get.bottomSheet(
                                     Container(
                                       margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -269,28 +271,45 @@ class _SalesOverviewState extends State<SalesOverview> {
                                                       Expanded(child: Container(height: 1,color: Karas.background,))
                                                     ],
                                                   ),
-                                                  ListView(
-                                                    shrinkWrap: true,
-                                                    children: [
-                                                      ...orderedProducts.map((e){
-
-                                                        ProductModel product = _productsController.products.value.where((element) => element.id==e.id).first;
-
-                                                        return ListTile(
-                                                            onTap: ()=>Get.to(()=>ProductDetails(product)),
-                                                            leading: CachedNetworkImage(
-                                                              width: 40,
-                                                              height: 40,
-                                                              fit: BoxFit.cover,
-                                                              imageUrl: '${e.image}',
-                                                              errorWidget: (e,i,c)=>Icon(Icons.image),
-                                                            ),
-                                                            subtitle: Text('Price: K${e.price}   | Total: K${double.parse(e.price)*int.parse(e.qty)}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),),
-                                                            title: Text(e.name, style: title3,),
-                                                            trailing: CircleAvatar(child: Text(e.qty, style: title2,), radius: 10,backgroundColor: Karas.background,)
-                                                        );
-                                                      })
-                                                    ],
+                                                  Expanded(
+                                                    child: ListView(
+                                                      physics: BouncingScrollPhysics(),
+                                                      shrinkWrap: true,
+                                                      children: [
+                                                        ...orderedProducts.map((e){
+                                                          ProductModel product = _productsController.products.value.where((element) => element.id==e.id).first;
+                                                          return InkWell(
+                                                              onTap: ()=>Get.to(()=>ProductDetails(product)),
+                                                                child: Container(
+                                                                  padding: EdgeInsets.symmetric(horizontal: 20,vertical: 5),
+                                                                  child: Row(
+                                                                    children: [
+                                                                      CachedNetworkImage(
+                                                                        width: 40,
+                                                                        height: 40,
+                                                                        fit: BoxFit.cover,
+                                                                        imageUrl: '${e.image}',
+                                                                        errorWidget: (e,i,c)=>Icon(Icons.image),
+                                                                      ),
+                                                                      SizedBox(width: 10),
+                                                                      Expanded(
+                                                                        child: Column(
+                                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                                          children: [
+                                                                            Text('Price: K${e.price}   | Total: K${double.parse(e.price)*int.parse(e.qty)}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),),
+                                                                            Text(e.name, style: title3,),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                      CircleAvatar(child: Text(e.qty, style: title2,), radius: 10,backgroundColor: Karas.background,)
+                                                    
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              );
+                                                        })
+                                                      ],
+                                                    ),
                                                   )
                                                 ],
                                               )
