@@ -2,7 +2,7 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <application
-        android:label="Rolade POS"
+        android:label="Kass POS"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

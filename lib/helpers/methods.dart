@@ -1,6 +1,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:just_audio/just_audio.dart';
@@ -279,7 +280,15 @@ class Methods {
                                 .then((value){
                               userNameController.clear();
                               userEmailController.clear();
-                
+
+                              FirebaseFirestore.instance.collection('users').add({
+                                'displayName':userNameController.text,
+                                'email':userEmailController.text,
+                                'password':'123456',
+                                'phone':'',
+                                'photo': '',
+                                'datetime':'${DateTime.now()}'
+                              });
                               Get.back();
                             });
                           }
@@ -357,6 +366,78 @@ class Methods {
                               _storeController.update();
                               storeNameController.clear();
                               storeDescriptionController.clear();
+
+                              Get.back();
+                            });
+                          }
+                        },
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        barrierColor: Colors.black26,
+        elevation: 10
+    );
+  }
+  void editPassword(BuildContext context){
+    TextEditingController passwordController = TextEditingController();
+    TextEditingController newPasswordController = TextEditingController();
+
+    Get.bottomSheet(
+        Container(
+          margin: EdgeInsets.only(bottom: 10),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              color: Karas.background
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Change Password', style: title1),
+              SizedBox(height: 30),
+              Expanded(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    Text('Current Password', style: title2,),
+                    SizedBox(height: 5),
+                    FormInputField(
+                      controller: passwordController,
+                      isNumeric: false,
+                      placeholder: 'Your Current Password',
+                      backgroundColor: Karas.secondary,
+                    ),
+                    SizedBox(height: 8),
+                    Text('New Password', style: title2,),
+                    SizedBox(height: 5),
+                    FormInputField(
+                      controller: newPasswordController,
+                      isNumeric: false,
+                      placeholder: 'New Password',
+                      backgroundColor: Karas.secondary,
+                    ),
+                    SizedBox(height: 30),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: Button1(
+                        height: 40,
+                        label: 'SAVE',
+                        tap: (){
+                          if(newPasswordController.text.isNotEmpty&&passwordController.text.isNotEmpty&&passwordController.text==_userController.user.value.password){
+                            FirebaseFirestore.instance.collection('users').doc(_userController.user.value.uid).update({
+                              'password':newPasswordController.text,
+                            })
+                                .then((value){
+                              passwordController.clear();
+                              newPasswordController.clear();
+
+                              showSnackBar(context, 'Password Changed!');
 
                               Get.back();
                             });

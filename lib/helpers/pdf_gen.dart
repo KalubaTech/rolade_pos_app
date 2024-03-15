@@ -207,7 +207,7 @@ pdfGen(
                                     textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                             SizedBox(width: 15),
                             Container(
-                                child: Text("K${_methods.formatNumber(subtotal)}",
+                                child: Text("K${_methods.formatNumber(double.parse(subtotal))}",
                                     textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                           ],
                         ),
@@ -219,7 +219,7 @@ pdfGen(
                                     textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                             SizedBox(width: 15),
                             Container(
-                                child: Text("K${_methods.formatNumber(tax)}", textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
+                                child: Text("K${_methods.formatNumber(double.parse(tax))}", textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                           ],
                         ),
                         TableRow(
@@ -231,7 +231,7 @@ pdfGen(
                                     textAlign: TextAlign.right,)),
                             SizedBox(width: 15),
                             Container(
-                                child: Text("K${_methods.formatNumber(total)}",
+                                child: Text("K${_methods.formatNumber(double.parse(total))}",
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                     textAlign: TextAlign.right)),
                           ],
@@ -256,7 +256,7 @@ pdfGen(
                                   child: Text("Cash", textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                               SizedBox(width: 15),
                               Container(
-                                  child: Text("K${_methods.formatNumber(cash)}",
+                                  child: Text("K${_methods.formatNumber(double.parse(cash))}",
                                       textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                             ],
                           ),
@@ -268,7 +268,7 @@ pdfGen(
                                       textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                               SizedBox(width: 15),
                               Container(
-                                  child: Text("K${_methods.formatNumber(change)}",
+                                  child: Text("K${_methods.formatNumber(double.parse(change))}",
                                       textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                             ],
                           ),

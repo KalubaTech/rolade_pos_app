@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get_storage/get_storage.dart';
@@ -13,15 +14,45 @@ import 'package:rolade_pos/views/pages_anchor.dart';
 
 import 'methods.dart';
 
-void signInUp({String? displayName, String? photo, required String email, String? phone})async{
+var _connectionStatus = ''.obs;
+bool mounted = true;
+Future<void> _initConnectivity() async {
+  ConnectivityResult result;
+  try {
+    result = await Connectivity().checkConnectivity();
+  } catch (e) {
+    print(e.toString());
+    result = ConnectivityResult.none;
+  }
 
+  if (!mounted) {
+    return;
+  }
+
+    switch (result) {
+      case ConnectivityResult.wifi:
+      case ConnectivityResult.mobile:
+        _connectionStatus.value = 'Connected';
+        break;
+      case ConnectivityResult.none:
+        _connectionStatus.value = 'No Internet Connection';
+        break;
+      default:
+        _connectionStatus.value = 'Unknown';
+        break;
+    }
+
+}
+
+
+void signInUp({String? displayName, String? photo, required String email, String? phone})async{
   UserController userController = Get.find();
   Methods _methods = Methods();
 
   await FirebaseFirestore.instance.collection('store_user')
       .where('user', isEqualTo: email).where('active',isEqualTo: true)
       .get().then((value){
-    if(value.size>0) {
+    if(value.docs.length>0) {
       _methods.getMyStore(email);
       FirebaseFirestore.instance.collection('users')
           .where('email', isEqualTo: email).get().then((user) {
@@ -31,14 +62,16 @@ void signInUp({String? displayName, String? photo, required String email, String
             displayName: value.docs.first.get('name'),
             phone: '',
             photo: '${user.docs.first.get('photo')}',
-            datetime: value.docs.first.get('datetime')
+            datetime: value.docs.first.get('datetime'),
+            password: user.docs.first.get('password')
         ):UserModel(
             uid: user.docs.first.id,
             email: user.docs.first.get('email'),
             displayName: value.docs.first.get('name'),
             phone: '',
             photo: '$photo',
-            datetime: value.docs.first.get('datetime')
+            datetime: value.docs.first.get('datetime'),
+            password: user.docs.first.get('password')
         );
 
         Map<String,dynamic> data = photo==null? {

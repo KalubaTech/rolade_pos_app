@@ -60,7 +60,7 @@ class SmallProductContainer extends StatelessWidget {
             fontWeight: FontWeight.w600
           ),
               maxLines: 1, overflow: TextOverflow.ellipsis,),
-          Text('K${product.price}', style: title4,)
+          Text('K${_methods.formatNumber(double.parse(product.price))}', style: title4,)
         ],
       ),
     );

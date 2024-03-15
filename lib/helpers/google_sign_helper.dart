@@ -25,7 +25,7 @@ class GoogleSignInHelper {
       final UserCredential authResult = await _auth.signInWithCredential(credential);
       return authResult.user;
     } catch (error) {
-      print(error);
+      print("${error} ERROR HERE");
       return null;
     }
   }

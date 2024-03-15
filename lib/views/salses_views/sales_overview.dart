@@ -325,10 +325,10 @@ class _SalesOverviewState extends State<SalesOverview> {
                                                   mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
                                                     Icon(Icons.print, color: Karas.primary),
-                                                    Text('  Print', style: TextStyle(color: Karas.primary),)
+                                                    Text('  Receipt', style: TextStyle(color: Karas.primary),)
                                                   ],
                                                 ), tap: (){
-                                                    pdfGen(_storeController.store.value, _userController.user.value, order, order.total, order.subtotal, order.cash, order.change, order.tax, _productsController);
+                                                    pdfGen(_storeController.store.value, _userController.user.value, order, order.total.toString(), order.subtotal.toString(), order.cash.toString(), order.change.toString(), order.tax.toString(), _productsController);
                                                 })),
                                                 SizedBox(width: 20,),
                                                 Expanded(child: Button2(content: Row(
@@ -339,14 +339,13 @@ class _SalesOverviewState extends State<SalesOverview> {
                                                   ],
                                                 ), tap: (){
 
-                                                    for(Map<String, String> prod in order.products.map((e) => {'productId':e['productId'], 'qty':e['quantity']})){
+                                                    for(Map<String, String> prod in order.products.map((e) => {'productId':e['productId'], 'qty':e['quantity']??e['qty']})){
                                                       ProductModel product = _productsController.products.where((p0) => p0.id==prod['productId']).first;
                                                       CartItemModel cartItem = CartItemModel(product: prod, qty: int.parse(prod['qty']!), price: int.parse(product.price)*int.parse(prod['qty']!), tax: double.parse(product.tax), datetime: '${DateTime.now()}');
 
                                                       _cartController.cart.value.clear();
                                                       _cartController.cart.value.add(cartItem);
                                                       _cartController.update();
-
 
                                                       Get.to(()=>Checkout());
                                                     }

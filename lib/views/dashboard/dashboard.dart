@@ -1,6 +1,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:date_picker_widget/date_picker_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:draggable_home/draggable_home.dart';
 import 'package:ionicons/ionicons.dart';
@@ -39,6 +40,7 @@ import 'package:time_diffrence/time_diffrence.dart';
 import 'package:flutter_carousel_widget/flutter_carousel_widget.dart';
 import '../settings/code_generator.dart';
 import '../store/stock.dart';
+import 'package:flutter_cupertino_date_picker_fork/flutter_cupertino_date_picker_fork.dart';
 
 class Dashboard extends StatefulWidget {
   Dashboard({Key? key}) : super(key: key);
@@ -69,8 +71,8 @@ class _DashboardState extends State<Dashboard> {
   String nextSalesDate = DateTime.now().toString().split(' ').first;
   String prevSalesDate = DateTime.now().subtract(Duration(days: 1)).toString().split(' ').first;
 
-  Future<String> _selectDate(BuildContext context, String initDate) async {
-    final DateTime? picked = await showDatePicker(
+   _selectDate(BuildContext context, String initDate) async {
+    /*final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.parse(initDate),
       firstDate: DateTime(2000),
@@ -81,7 +83,16 @@ class _DashboardState extends State<Dashboard> {
       return picked.toString().split(' ').first;//picked;
     }else{
       return '${DateTime.now().toString().split(' ').first}';
-    }
+    }*/
+
+    Get.bottomSheet(
+        Container(
+          child: DatePickerWidget(),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20)
+          ),
+        )
+    );
   }
 
   @override
@@ -354,101 +365,106 @@ class _DashboardState extends State<Dashboard> {
                         height: 130,
                         child: Container(
                           padding: EdgeInsets.only(bottom: 10),
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            physics: BouncingScrollPhysics(),
+                          child: Row(
                             children: [
                               SizedBox(width: 20,),
-                              Container(
-                                width: 150,
-                                decoration: BoxDecoration(
-                                    color: Karas.background,
-                                    borderRadius: BorderRadius.circular(8)
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
-                                      child: InkWell(
-                                        onTap: ()async{
-                                          nextSalesDate = await _selectDate(context, nextSalesDate);
-                                          setState(() {
-                                            nextSales = _methods.salesByDate(nextSalesDate);
-                                          });
-                                        },
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text('${convertToNaturalLanguageDate(DateTime.parse(nextSalesDate))}', style: title3,),
-                                            Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
-                                          ],
+                              Expanded(
+                                child: Container(
+                                  width: 150,
+                                  decoration: BoxDecoration(
+                                      color: Karas.background,
+                                      borderRadius: BorderRadius.circular(8)
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
+                                        child: InkWell(
+                                          onTap: ()async{
+                                            nextSalesDate = await _selectDate(context, nextSalesDate);
+                                /*            nextSalesDate = await _selectDate(context, nextSalesDate);
+                                            setState(() {
+                                              nextSales = _methods.salesByDate(nextSalesDate);
+                                            });*/
+                                
+                                
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('${convertToNaturalLanguageDate(DateTime.parse(nextSalesDate))}', style: title3,),
+                                              Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
-                                      child: AnimatedDigitWidget(
-                                          value: nextSales,
-                                          textStyle: title1,
-                                          duration: Duration(seconds: 2),
-                                          prefix: 'K'
+                                      Container(
+                                        padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
+                                        child: AnimatedDigitWidget(
+                                            value: nextSales,
+                                            textStyle: title1,
+                                            duration: Duration(seconds: 2),
+                                            prefix: 'K'
+                                        ),
                                       ),
-                                    ),
-                                    Container(
-                                        padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 1),
-                                        child: Row(
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Icon((percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Icons.trending_down:Icons.trending_up, color: (percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Colors.deepOrange:Colors.blue),
-                                                Text('  ${_ordersController.orders.length<2?100:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt.ceil())}%', style: TextStyle(fontSize: 14, color:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Colors.red:Colors.blue, fontWeight: FontWeight.w700),),
-                                              ],
-                                            ),
-                                          ],
-                                        )
-                                    ),
-                                  ],
+                                      Container(
+                                          padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 1),
+                                          child: Row(
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Icon((percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Icons.trending_down:Icons.trending_up, color: (percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Colors.deepOrange:Colors.blue),
+                                                  Text('  ${_ordersController.orders.length<2?100:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt.ceil())}%', style: TextStyle(fontSize: 14, color:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Colors.red:Colors.blue, fontWeight: FontWeight.w700),),
+                                                ],
+                                              ),
+                                            ],
+                                          )
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                               SizedBox(width: 10,),
-                              Container(
-                                width: 150,
-                                decoration: BoxDecoration(
-                                    color: Karas.orange,
-                                    borderRadius: BorderRadius.circular(8)
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
-                                      child: InkWell(
-                                        onTap: ()async{
-                                          prevSalesDate = await _selectDate(context, prevSalesDate);
-                                          setState(() {
-                                            prevSales = _methods.salesByDate(prevSalesDate);
-                                          });
-                                        },
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text('${convertToNaturalLanguageDate(DateTime.parse(prevSalesDate))}', style: title3,),
-                                            Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
-                                          ],
+                              Expanded(
+                                child: Container(
+                                  width: 150,
+                                  decoration: BoxDecoration(
+                                      color: Karas.orange,
+                                      borderRadius: BorderRadius.circular(8)
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 8),
+                                        child: InkWell(
+                                          onTap: ()async{
+                                            prevSalesDate = await _selectDate(context, prevSalesDate);
+                                            setState(() {
+                                              prevSales = _methods.salesByDate(prevSalesDate);
+                                            });
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('${convertToNaturalLanguageDate(DateTime.parse(prevSalesDate))}', style: title3,),
+                                              Icon(Icons.edit_calendar_outlined, size: 18, color: Karas.primary)
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    Container(
-                                      padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
-                                      child: AnimatedDigitWidget(
-                                          value: prevSales,
-                                          textStyle: title1,
-                                          duration: Duration(seconds: 2),
-                                          prefix: 'K'
+                                      Container(
+                                        padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
+                                        child: AnimatedDigitWidget(
+                                            value: prevSales,
+                                            textStyle: title1,
+                                            duration: Duration(seconds: 2),
+                                            prefix: 'K'
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                               SizedBox(width: 20,),
@@ -524,15 +540,17 @@ class _DashboardState extends State<Dashboard> {
                                   children: [
                                     Expanded(
                                       child: Container(
-                                        color: Karas.secondary,
+                                        decoration: BoxDecoration(
+                                          border: BorderDirectional(top: BorderSide(color: Karas.secondary))
+                                        ),
                                         margin: EdgeInsets.only(bottom: 10, top: 10),
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             SizedBox(height: 5),
                                             Text(
-                                              e,
-                                              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey),
+                                              "$e",
+                                              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey, fontSize: 18),
                                             ),
                                             SizedBox(height: 5)
                                           ],
@@ -549,7 +567,6 @@ class _DashboardState extends State<Dashboard> {
                                       return TouchRippleEffect(
                                         rippleColor: Colors.grey.withOpacity(0.4),
                                         onTap: () {
-
                                           _methods.productToCartDialog(item, context);
                                         },
                                         child: SmallProductContainer(image: '${item.images.first}', title: '${item.productName} (${item.quantity})', id: item.id, product: item,)

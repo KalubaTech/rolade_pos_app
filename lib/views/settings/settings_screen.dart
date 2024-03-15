@@ -40,6 +40,38 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: CardItems(
                   head: CardItemsHeader(
+                      title: 'Account Settings',
+                      seeallbtn: _userController.user.value.email==_storeController.store.value.email?TouchRippleEffect(
+                        onTap: ()=>_methods.editPassword(context),
+                        rippleColor: Colors.grey.withOpacity(0.4),
+                        borderRadius: BorderRadius.circular(20),
+                        child: CircleAvatar(
+                            radius: 12,
+                            backgroundColor: Karas.secondary,
+                            child: Icon(Icons.edit, size: 15,)
+                        ),
+                      ):Container()),
+                  body: GetBuilder<StoreController>(
+                    builder:(controllerStore)=> Container(
+                      child: Column(
+                        children: [
+                          ListTile(
+                            title: Text('*******', style: TextStyle(fontWeight: FontWeight.w500),),
+                            subtitle: Text('Password', style: TextStyle(fontSize: 13),),
+                          ),
+                          Container(height: 1,color: Karas.secondary,width: double.infinity,),
+
+                        ],
+                      ),
+                    ),
+                  )
+              ),
+            ),
+            SizedBox(height: 18,),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: CardItems(
+                  head: CardItemsHeader(
                     title: 'Store Settings', 
                     seeallbtn: _userController.user.value.email==_storeController.store.value.email?TouchRippleEffect(
                       onTap: ()=>_methods.editStore(fs),
