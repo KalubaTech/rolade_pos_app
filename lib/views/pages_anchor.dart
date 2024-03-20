@@ -78,15 +78,15 @@ class _PagesAnchorState extends State<PagesAnchor> {
          floatingActionButton: FloatingActionButton(
              backgroundColor: Karas.primary,
              onPressed: ()async{
-               String barcode = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", false, ScanMode.DEFAULT);
-               if(barcode.toString().contains('-')||barcode.toString().length<10){
-                 player.setAsset('assets/barcode_failed.mp3');
-                 player.play();
-               }else{
-                 player.setAsset('assets/barcode_scanned.mp3');
-                 player.play();
-                 _methods.productBarcodeDialog(barcode, player);
-               }
+                   String barcode = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", false, ScanMode.DEFAULT);
+                   if(barcode.toString().contains('-') || barcode.toString().length<10){
+                     player.setAsset('assets/barcode_failed.mp3');
+                     player.play();
+                   }else{
+                     player.setAsset('assets/barcode_scanned.mp3');
+                     player.play();
+                     _methods.productBarcodeDialog(barcode, player);
+                   }
                },
              child: CircleAvatar(
                backgroundColor: Colors.white,
@@ -167,7 +167,7 @@ class _PagesAnchorState extends State<PagesAnchor> {
              ),
              BottomBarItem(
                icon:  Icon(Ionicons.pricetag,),
-               title: const Text('Stock',style: TextStyle(fontSize: 10),),
+               title: const Text('Stock Track',style: TextStyle(fontSize: 10),),
                backgroundColor: Colors.white,
                selectedColor: Colors.orange,
                selectedIcon: DecoratedIcon(

@@ -7,6 +7,7 @@ class ProductModel {
   String price;
   String description;
   String quantity;
+  String cost;
   String tax;
   List images;
   String? supplierName;
@@ -14,7 +15,7 @@ class ProductModel {
   String? unit;
   String category;
   String lowStockLevel;
-
+  String stock_quantity;
 
   ProductModel(
       {
@@ -23,6 +24,8 @@ class ProductModel {
         required this.price,
         required this.description,
         required this.quantity,
+        required this.stock_quantity,
+        required this.cost,
         required this.images,
         required this.tax,
         required this.category,

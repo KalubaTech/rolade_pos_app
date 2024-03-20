@@ -7,6 +7,7 @@ import 'package:draggable_home/draggable_home.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:rolade_pos/components/ad_container.dart';
 import 'package:rolade_pos/components/alert_banner.dart';
+import 'package:rolade_pos/components/bigItem.dart';
 import 'package:rolade_pos/components/card_items.dart';
 import 'package:rolade_pos/components/card_items_header.dart';
 import 'package:rolade_pos/components/drawer_header.dart';
@@ -170,7 +171,7 @@ class _DashboardState extends State<Dashboard> {
                                 SizedBox(width: 10,)
                               ],
                             ),
-                            title: 'Stock',
+                            title: 'Stock Track',
                             tap: (){
                               Get.to(()=>Stock(), transition: Transition.rightToLeft);
                             },
@@ -560,8 +561,8 @@ class _DashboardState extends State<Dashboard> {
                                   ],
                                 ),
                                 shrinkWrap: true,
-                                mainAxisSpacing: 6,
-                                crossAxisSpacing: 15,
+                                mainAxisSpacing: 10,
+                                crossAxisSpacing: 10,
                                 gridItemBuilder:
                                     (context, int countInGroup, int itemIndexInGroup, item, itemIndexInOriginalList) {
                                       return TouchRippleEffect(
@@ -569,10 +570,10 @@ class _DashboardState extends State<Dashboard> {
                                         onTap: () {
                                           _methods.productToCartDialog(item, context);
                                         },
-                                        child: SmallProductContainer(image: '${item.images.first}', title: '${item.productName} (${item.quantity})', id: item.id, product: item,)
+                                        child: BigItem(product: item)
                                     );
                                     },
-                                crossAxisCount: 3,
+                                crossAxisCount: 2,
                               ): Container(),
 
                         SizedBox(height: 15,),

@@ -151,7 +151,7 @@ class ProductDetails extends StatelessWidget {
                 ),
                 SizedBox(height: 18,),
                 CardItems(
-                    head: CardItemsHeader(title: 'Similar Products'),
+                    head: CardItemsHeader(title: 'More Products'),
                     body: Column(
                       children: [
                         Container(

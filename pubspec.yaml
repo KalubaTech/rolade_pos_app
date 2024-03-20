@@ -90,6 +90,7 @@ dependencies:
   date_picker_widget: ^0.0.4
   flutter_cupertino_date_picker_fork: ^1.0.7
   connectivity: ^3.0.6
+  connectivity_wrapper: ^1.1.4
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

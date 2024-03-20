@@ -108,6 +108,8 @@ class Methods {
             category: e.get('category'),
             unit: e.get('unit'),
             lowStockLevel: e.get('lowStockLevel')??'0',
+            cost: e.get('cost'),
+            stock_quantity: e.get('stock_quantity'),
           );
         }).toList();
         List<WorkDayModel> workdays = workdaysQuery.docs.map((e) {
@@ -759,6 +761,7 @@ class Methods {
                   'supplierPhone':supplierPhone??'',
                   'barcode':barcode??'',
                   'images':uploadedImages,
+                  'stock_quantity': quantity,
                   'quantity':quantity??'0',
                   'store_id': _storeController.store.value.id,
                   'tax':tax??'0',
@@ -783,6 +786,7 @@ class Methods {
        String? supplierName,
        String? barcode,
        String? quantity,
+       String? stock_quantity,
        String? tax,
        String? supplier
   })async{
@@ -799,6 +803,7 @@ class Methods {
                   'supplierName':supplierName??'',
                   'barcode':barcode??'',
                   'quantity':quantity??'0',
+                  'stock_quantity': quantity,
                   'store_id': _storeController.store.value.id,
                   'tax':tax??'0',
                   'supplier':supplier??''
@@ -847,7 +852,9 @@ class Methods {
                       supplierPhone: document.get('supplierPhone'),
                       category: document.get('category'),
                       unit: document.get('unit'),
-                      lowStockLevel: document.get('lowStockLevel')??'0'
+                      lowStockLevel: document.get('lowStockLevel')??'0',
+                      cost: document.get('cost'),
+                      stock_quantity: document.get('stock_quantity')
                   );
                   return Container(
                   child: Column(
