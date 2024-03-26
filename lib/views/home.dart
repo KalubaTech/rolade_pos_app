@@ -6,7 +6,6 @@ import 'package:rolade_pos/components/card_items.dart';
 import 'package:rolade_pos/components/card_items_header.dart';
 import 'package:rolade_pos/components/cover_all_image_container.dart';
 import 'package:rolade_pos/components/header_avatar.dart';
-
 import '../components/category_item.dart';
 import '../components/serachbar_mock.dart';
 import '../controllers/user_controller.dart';

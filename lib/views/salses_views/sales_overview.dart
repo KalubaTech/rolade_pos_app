@@ -1,9 +1,12 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:draggable_home/draggable_home.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easy_table/flutter_easy_table.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:rolade_pos/components/card_items_header.dart';
 import 'package:rolade_pos/components/form_components/button2.dart';
 import 'package:rolade_pos/controllers/ordersController.dart';
@@ -24,6 +27,7 @@ import '../../components/card_items.dart';
 import '../../components/expandable_table.dart';
 import '../../controllers/cart_controller.dart';
 import '../../controllers/user_controller.dart';
+import '../../helpers/creds.dart';
 import '../../helpers/methods.dart';
 import '../../models/cart_item_model.dart';
 import '../../models/order_model.dart';
@@ -43,7 +47,7 @@ class _SalesOverviewState extends State<SalesOverview> {
 
   DateTime fromDate = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day);
 
-  DateTime? toDate = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day);
+  DateTime? toDate = DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day+1);
 
   FirebaseFirestore fs = FirebaseFirestore.instance;
 
@@ -157,6 +161,30 @@ class _SalesOverviewState extends State<SalesOverview> {
                       ],
                     ),
                   ),
+                  Creds().admin()?StreamBuilder(
+                    stream: fs.collection('store_user').where('store_id', isEqualTo: _storeController.store.value.id).snapshots(),
+                    builder: (context, snapshot) {
+                      return snapshot.hasData?Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
+                        child: Container(
+                          child: DropdownSearch(
+                            items: [
+                              'All',
+                              ...snapshot.data!.docs.map((e) => e.get('name')).toList()
+                            ],
+                            selectedItem: 'Select Cashier',
+                            onChanged: (value){
+
+                            },
+                          )
+                        ),
+                      ): Container();
+                    }
+                  ):Container(),
+                  ElasticInRight(
+                      duration: Duration(seconds: 2),
+                      child: Text('KALUBA')
+                  ),
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -202,7 +230,7 @@ class _SalesOverviewState extends State<SalesOverview> {
                                 List<OrderProductModel> orderedProducts = [];
 
                                 for(Map<dynamic,dynamic>item in order.products) {
-                                  print(item);
+                                 // print(item);
                                   ProductModel product = _productsController
                                       .products.value.where((element) {
                                     return element.id == item['productId'];
@@ -239,7 +267,7 @@ class _SalesOverviewState extends State<SalesOverview> {
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text('Order Details', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),),
-                                                SizedBox(height: 10),
+                                                SizedBox(height: 8),
                                                 Text(order.ordID, style: TextStyle(color: Karas.background, fontWeight: FontWeight.w600, fontSize: 12),),
                                                 ],
                                             )
@@ -252,8 +280,19 @@ class _SalesOverviewState extends State<SalesOverview> {
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(formatDate(order.date), style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500, fontSize: 12),),
+                                                Creds().admin()?Row(
+                                                  children: [
+                                                    Text('Cashier: ', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500, fontSize: 11),),
+                                                    StreamBuilder(
+                                                      stream: FirebaseFirestore.instance.collection('users').doc(order.user).snapshots(),
+                                                      builder: (context, snapshot) {
+                                                        return snapshot.hasData? Text('${snapshot.data!.get('displayName')}', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500, fontSize: 11),):Container();
+                                                      }
+                                                    )
+                                                  ],
+                                                ):Container(),
                                                 SizedBox(height: 5,),
-                                                Text('Total: K${order.total}  |  Cash: K${order.cash}  |  Change: K${order.change}', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500, fontSize: 11),),
+                                                Text('Total: K${_methods.formatNumber(order.total)}  |  Cash: K${_methods.formatNumber(order.cash)}  |  Change: K${_methods.formatNumber(order.change)}', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.w500, fontSize: 11),),
                                               ],
                                             )
                                           ),

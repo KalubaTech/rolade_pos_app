@@ -3,6 +3,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:rolade_pos/components/form_components/button1.dart';
 import 'package:rolade_pos/controllers/user_controller.dart';
 import 'package:get/get.dart';
 import 'package:rolade_pos/models/user_model.dart';
@@ -14,36 +15,7 @@ import 'package:rolade_pos/views/pages_anchor.dart';
 
 import 'methods.dart';
 
-var _connectionStatus = ''.obs;
 bool mounted = true;
-Future<void> _initConnectivity() async {
-  ConnectivityResult result;
-  try {
-    result = await Connectivity().checkConnectivity();
-  } catch (e) {
-    print(e.toString());
-    result = ConnectivityResult.none;
-  }
-
-  if (!mounted) {
-    return;
-  }
-
-    switch (result) {
-      case ConnectivityResult.wifi:
-      case ConnectivityResult.mobile:
-        _connectionStatus.value = 'Connected';
-        break;
-      case ConnectivityResult.none:
-        _connectionStatus.value = 'No Internet Connection';
-        break;
-      default:
-        _connectionStatus.value = 'Unknown';
-        break;
-    }
-
-}
-
 
 void signInUp({String? displayName, String? photo, required String email, String? phone})async{
   UserController userController = Get.find();
@@ -103,10 +75,14 @@ void signInUp({String? displayName, String? photo, required String email, String
             child: Column(
               children: [
                 Text(
-                  'This Email Is Either Deactivated Or Not Associated With Any Store On The System.',
+                  'Incorrect Email Address or Password!.',
                   style: title1,textAlign: TextAlign.center,),
                 SizedBox(height: 10,),
-                Text('Kindly Contact the Store Admin or reach us on +260962407441 for help.', textAlign:TextAlign.center,style: TextStyle(color: Karas.primary, fontSize: 14, fontWeight: FontWeight.w600),)
+                Text('Kindly Contact the Store Admin or reach us on +260962407441 for help.', textAlign:TextAlign.center,style: TextStyle(color: Karas.primary, fontSize: 14, fontWeight: FontWeight.w600),),
+                SizedBox(height: 10,),
+                Button1(label: 'Call Now', tap: ()async{
+                  _methods.launchPhoneCall('+260962407441');
+                })
               ],
             ),
           )

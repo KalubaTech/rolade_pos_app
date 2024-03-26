@@ -36,7 +36,7 @@ class BigItem extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                   color: Karas.background,
-                  borderRadius: BorderRadius.circular(10)
+                  borderRadius: BorderRadius.circular(10),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),

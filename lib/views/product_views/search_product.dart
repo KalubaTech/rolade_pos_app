@@ -2,10 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_enhanced_barcode_scanner/flutter_enhanced_barcode_scanner.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:rolade_pos/components/form_components/button1.dart';
 import 'package:rolade_pos/controllers/products_controller.dart';
 import 'package:rolade_pos/helpers/methods.dart';
 import 'package:rolade_pos/models/product_model.dart';
 import 'package:rolade_pos/styles/colors.dart';
+import 'package:rolade_pos/views/product_views/product_entry.dart';
 import 'package:searchable_listview/searchable_listview.dart';
 import 'package:touch_ripple_effect/touch_ripple_effect.dart';
 import 'package:get/get.dart';
@@ -37,6 +39,14 @@ class _SearchProductsState extends State<SearchProducts> {
                 backgroundColor: Karas.secondary,
                 appBar: AppBar(
                   title: Text('Search Products'),
+                  actions: [
+                     IconButton(
+                         onPressed: (){
+                           Get.to(()=>ProductEntry());
+                         },
+                         icon: Icon(Icons.add)
+                     )
+                  ],
                   backgroundColor: Karas.primary,
                 ),
                 body: Container(

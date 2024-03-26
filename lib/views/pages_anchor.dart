@@ -1,3 +1,4 @@
+import 'package:connectivity_wrapper/connectivity_wrapper.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_enhanced_barcode_scanner/flutter_enhanced_barcode_scanner.dart';
@@ -52,6 +53,7 @@ class _PagesAnchorState extends State<PagesAnchor> {
 
   int counter = 0;
 
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -82,10 +84,12 @@ class _PagesAnchorState extends State<PagesAnchor> {
                    if(barcode.toString().contains('-') || barcode.toString().length<10){
                      player.setAsset('assets/barcode_failed.mp3');
                      player.play();
+                    // print(barcode);
                    }else{
-                     player.setAsset('assets/barcode_scanned.mp3');
+                     player.setAsset('assets/scanned.mp3');
                      player.play();
-                     _methods.productBarcodeDialog(barcode, player);
+                     _methods.productBarcodeDialog(barcode);
+                     //print(barcode);
                    }
                },
              child: CircleAvatar(
@@ -100,7 +104,6 @@ class _PagesAnchorState extends State<PagesAnchor> {
            option: AnimatedBarOptions(
              iconSize: 20,
              iconStyle: IconStyle.simple
-
            ),
            items: [
              BottomBarItem(

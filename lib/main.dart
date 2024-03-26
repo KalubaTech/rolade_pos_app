@@ -91,7 +91,7 @@ class _MyAppState extends State<MyApp> {
       // The navigator key is necessary to allow to navigate through static methods
       navigatorKey: MyApp.navigatorKey,
       debugShowCheckedModeBanner: false,
-      title: 'Rolade POS',
+      title: 'Kass POS',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Karas.white),
         primaryColor: Karas.primary,

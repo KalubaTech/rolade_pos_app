@@ -41,7 +41,8 @@ class SettingsScreen extends StatelessWidget {
               child: CardItems(
                   head: CardItemsHeader(
                       title: 'Account Settings',
-                      seeallbtn: _userController.user.value.email==_storeController.store.value.email?TouchRippleEffect(
+                      seeallbtn: _userController.user.value.email==_storeController.store.value.email?
+                      TouchRippleEffect(
                         onTap: ()=>_methods.editPassword(context),
                         rippleColor: Colors.grey.withOpacity(0.4),
                         borderRadius: BorderRadius.circular(20),
@@ -72,7 +73,7 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: CardItems(
                   head: CardItemsHeader(
-                    title: 'Store Settings', 
+                    title: 'Store ${_userController.user.value.email==_storeController.store.value.email?"Settings":"Details"}',
                     seeallbtn: _userController.user.value.email==_storeController.store.value.email?TouchRippleEffect(
                       onTap: ()=>_methods.editStore(fs),
                       rippleColor: Colors.grey.withOpacity(0.4),
@@ -108,6 +109,7 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 18,),
+            _storeController.store.value.admins.contains(_userController.user.value.email)?
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: CardItems(
@@ -159,7 +161,7 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   )
               ),
-            ),
+            ):Container(),
             SizedBox(height: 18,),
             _storeController.store.value.admins.contains(_userController.user.value.email)?Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -213,6 +215,11 @@ class SettingsScreen extends StatelessWidget {
                   color: Karas.background,
                   child: Column(
                     children: [
+                      userC.user.value.photo==""?
+                      CircleAvatar(
+                        radius: 40,
+                        foregroundImage: AssetImage('assets/avatar_placeholder.jpg'),
+                      ): 
                       CircleAvatar(
                         radius: 40,
                         foregroundImage: NetworkImage('${userC.user.value.photo}'),

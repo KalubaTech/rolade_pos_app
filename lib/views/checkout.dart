@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_wrapper/connectivity_wrapper.dart';
 import 'package:draggable_home/draggable_home.dart';
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -39,6 +40,12 @@ class Checkout extends StatelessWidget {
   var receipt = true.obs;
   var cash = 0.0.obs;
 
+
+
+  Future<AddressCheckResult> isConnected()async{
+    return await ConnectivityWrapper.instance.isHostReachable(AddressCheckOptions(hostname: 'www.google.com'));
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -73,7 +80,7 @@ class Checkout extends StatelessWidget {
                       ()=> Switch(
                         value: receipt.value,
                         inactiveThumbColor: Karas.secondary,
-                        activeColor: Karas.secondary,
+                        activeColor: Karas.orange,
                         onChanged: (value){
                           receipt.value = value;
                         }
@@ -88,7 +95,6 @@ class Checkout extends StatelessWidget {
                       backgroundColor: cash.value<total?Karas.background:Colors.orange,
                       content: Text('Pay', style: TextStyle(color: cash.value<total?Colors.black87:Colors.white, fontWeight: FontWeight.bold),
                       ), tap: ()async{
-                        print(cartController.cart.value.map((e) => e.product).toList());
                       Get.dialog(
                         Container(
                           child: Center(
@@ -102,74 +108,102 @@ class Checkout extends StatelessWidget {
                         barrierColor: Colors.black26,
                         barrierDismissible: false,
                       );
+                        AddressCheckResult isconnecting = await isConnected();
 
-                      String orderNo = _methods.generateOrderNumber();
+                            if(cash.value>=total){
+                              //print(cartController.cart.value.map((e) => e.product).toList());
 
-                      Map<String, dynamic> orderData = {
-                        'orderNo': orderNo,
-                        'products': cartController.cart.value.map((e) => e.product).toList(),
-                        'datetime': '${DateTime.now()}',
-                        'quantity': '${cartController.cart.value.length}',
-                        'total': '${total}',
-                        'cash': '${cash.value}',
-                        'change': '${change.value}',
-                        'tax': '${tax}',
-                        'subtotal': '${subtotal}',
-                        'customer': '',
-                        'user': '${_userController.user.value.uid}',
-                        'storeId': '${_storeController.store.value.id}',
-                      };
 
-                      try {
-                        // Add the order to Firestore
-                        DocumentReference orderRef =
-                        await FirebaseFirestore.instance.collection('order').add(orderData);
+                              String orderNo = _methods.generateOrderNumber();
 
-                        // Update product quantities
-                        for (CartItemModel e in cartController.cart.value) {
-                          ProductModel productSnapshot =
-                              _productsController.products.value.where((element) => element.id==e.product['productId']).first;
-                            try {
-                              print("Processing item: ${e.product['productId']}");
-                              await _methods.reduceStock(productID: e.product['productId'].toString(), qty: int.parse(e.product['qty']!));
-                              print("Stock reduced successfully for: ${e.product['productId']}");
-                            } catch (e) {
-                              print("Error reducing stock for item $e");
-                              // Handle the error as per your application's requirements
+                              Map<String, dynamic> orderData = {
+                                'orderNo': orderNo,
+                                'products': cartController.cart.value.map((e) => e.product).toList(),
+                                'datetime': '${DateTime.now()}',
+                                'quantity': '${cartController.cart.value.length}',
+                                'total': '${total}',
+                                'cash': '${cash.value}',
+                                'change': '${change.value}',
+                                'tax': '${tax}',
+                                'subtotal': '${subtotal}',
+                                'customer': '',
+                                'user': '${_userController.user.value.uid}',
+                                'storeId': '${_storeController.store.value.id}',
+                              };
+
+                            //  try {
+                                // Add the order to Firestore
+                              if(isconnecting.isSuccess){
+                                await FirebaseFirestore.instance.collection('order').add(orderData);
+
+                                // Update product quantities
+                                for (CartItemModel e in cartController.cart.value) {
+                                  ProductModel productSnapshot =
+                                      _productsController.products.value.where((element) => element.id==e.product['productId']).first;
+                                  try {
+                                    print("Processing item: ${e.product['productId']}");
+                                    await _methods.reduceStock(productID: e.product['productId'].toString(), qty: int.parse(e.product['qty']!));
+                                    print("Stock reduced successfully for: ${e.product['productId']}");
+                                  } catch (e) {
+                                    print("Error reducing stock for item $e");
+                                    // Handle the error as per your application's requirements
+                                  }
+
+
+                                }
+
+                                Get.back(); // Close the loading dialog
+                              }else{
+                                FirebaseFirestore.instance.collection('order').add(orderData);
+
+                                // Update product quantities
+                                for (CartItemModel e in cartController.cart.value) {
+                                  ProductModel productSnapshot =
+                                      _productsController.products.value.where((element) => element.id==e.product['productId']).first;
+                                  try {
+                                    print("Processing item: ${e.product['productId']}");
+                                     _methods.reduceOfflineStock(productID: e.product['productId'].toString(), qty: int.parse(e.product['qty']!));
+                                    //print("Stock reduced successfully for: ${e.product['productId']}");
+                                  } catch (e) {
+                                    //print("Error reducing stock for item $e");
+                                    // Handle the error as per your application's requirements
+                                  }
+
+
+                                }
+
+                                Get.back(); // Close the loading dialog
+                              }
+
+
+                                if (receipt.value) {
+                                  pdfGen(
+                                    _storeController.store.value,
+                                    _userController.user.value,
+                                    OrderModel.fromMap(orderData),
+                                    _methods.formatNumber(total),
+                                    _methods.formatNumber(subtotal),
+                                    _methods.formatNumber(cash.value),
+                                    _methods.formatNumber(change.value),
+                                    _methods.formatNumber(tax),
+                                    _productsController,
+                                  );
+                                }
+                                _orderController.orders.value.add(OrderModel.fromMap(orderData));
+                                _orderController.update();
+                                _methods.showSnackBar(context, 'Order Is Successful');
+
+                                NotificationsHelper().showNotification('Ordered Successfully', 'An order of order No. ${orderNo} has completed succesfully!');
+                                cartController.cart.clear();
+                                cartController.update();
+                                Get.back();
+                             // } catch (error) {
+                                // Handle errors, show a snackbar, etc.
+                             //   print('Error adding order: $error');
+                            //    Get.back();
+                                // Close the loading dialog on error
+                            //  }
                             }
-
-
-                        }
-
-                        Get.back(); // Close the loading dialog
-
-                        if (receipt.value) {
-                          pdfGen(
-                            _storeController.store.value,
-                            _userController.user.value,
-                            OrderModel.fromMap(orderData),
-                            _methods.formatNumber(total),
-                            _methods.formatNumber(subtotal),
-                            _methods.formatNumber(cash.value),
-                            _methods.formatNumber(change.value),
-                            _methods.formatNumber(tax),
-                            _productsController,
-                          );
-                        }
-                        _orderController.orders.value.add(OrderModel.fromMap(orderData));
-                        _orderController.update();
-                        _methods.showSnackBar(context, 'Order Is Successful');
-
-                        NotificationsHelper().showNotification('Ordered Successfully', 'An order of order No. ${orderNo} has completed succesfully!');
-                        cartController.cart.clear();
-                        cartController.update();
-                        Get.back();
-                      } catch (error) {
-                        // Handle errors, show a snackbar, etc.
-                        print('Error adding order: $error');
-                        Get.back();
-                        // Close the loading dialog on error
-                      }
                           }
                   ),
                 )

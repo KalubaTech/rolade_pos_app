@@ -63,6 +63,7 @@ class _ProductsByCategoryState extends State<ProductsByCategory> {
                                 hintText: 'Search product',
                                 contentPadding: EdgeInsets.only(left: 20),
                                 suffixIcon: TouchRippleEffect(
+                                  rippleColor: Karas.background,
                                     onTap: ()async{
                                       String barcode = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", false, ScanMode.DEFAULT);
                                       if(barcode.toString().contains('-')||barcode.toString().length<10){

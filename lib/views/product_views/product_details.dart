@@ -19,6 +19,7 @@ import '../../controllers/cart_controller.dart';
 import '../../controllers/products_controller.dart';
 import '../../controllers/store_controller.dart';
 import '../../controllers/user_controller.dart';
+import '../../helpers/creds.dart';
 import '../../helpers/methods.dart';
 
 
@@ -128,7 +129,6 @@ class ProductDetails extends StatelessWidget {
                         children: [
                           Text('${product.productName}', style: title1,),
                           Text('K${_methods.formatNumber(double.parse(product.price))}', style: titleprimary,),
-
                         ],
                       ),
                       Text('${product.description}', style: title2,),
@@ -159,23 +159,22 @@ class ProductDetails extends StatelessWidget {
                           child:
                               productController.products.isNotEmpty?
                                 GridView.builder(
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemCount: productController.products.length,
-                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                crossAxisSpacing: 16,
-                                mainAxisSpacing: 16,
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemCount: productController.products.length,
+                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
                                 ),
                                 itemBuilder: (context, index){
-                                ProductModel productModel = productController.products.value[index];
-                                return SmallProductContainer(image: productModel.images.first, title: '${productModel.productName} (${productModel.quantity})', id: productModel.id, product: productModel);
-                                },
+                                    ProductModel productModel = productController.products.value[index];
+                                    return SmallProductContainer(image: productModel.images.first, title: '${productModel.productName} (${productModel.quantity})', id: productModel.id, product: productModel);
+                                  },
                                 ):
                                 Container(
                                   child: Text('')
                                 ),
-
 
                         ),
                         SizedBox(height: 20)
@@ -228,7 +227,7 @@ class ProductDetails extends StatelessWidget {
                   children: [
                     Center(child: Text('Out Of Stock', style: TextStyle(color: Colors.deepOrange, fontWeight: FontWeight.w500, fontSize: 14))),
                     SizedBox(height: 10),
-                    isAdmin?Button1(label: 'Re-stock', tap:()=>_methods.productQtyDialog(product, context)):Container()
+                    Creds().admin()?Button1(label: 'Re-stock', tap:()=>_methods.productQtyDialog(product, context)):Container()
                   ],
                 ),
               ),

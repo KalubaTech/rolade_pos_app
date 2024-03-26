@@ -3,6 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rolade_pos/components/cart_item_container.dart';
 import 'package:rolade_pos/components/stock_item.dart';
+import 'package:rolade_pos/controllers/store_controller.dart';
+import 'package:rolade_pos/controllers/user_controller.dart';
+import 'package:rolade_pos/helpers/creds.dart';
 import 'package:rolade_pos/helpers/methods.dart';
 import 'package:rolade_pos/models/product_model.dart';
 import 'package:rolade_pos/styles/colors.dart';
@@ -29,8 +32,13 @@ class _StockState extends State<Stock> with TickerProviderStateMixin{
   }
 
   Methods _methods = Methods();
+  StoreController _storeController = StoreController();
+  UserController _userController = UserController();
+
+  bool isAdmin = false;
   @override
   Widget build(BuildContext context) {
+
     return GetBuilder<ProductsController>(
       builder: (products) {
         List<ProductModel> product = products.products.value;
@@ -106,7 +114,7 @@ class _StockState extends State<Stock> with TickerProviderStateMixin{
                     itemGrouper: (product) => int.parse(product.quantity)<int.parse(product.lowStockLevel),
                   ),
                 ),
-                Container(
+                Creds().admin()?Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 10,
                     vertical: 10
@@ -166,6 +174,10 @@ class _StockState extends State<Stock> with TickerProviderStateMixin{
                       )
                     ],
                   ),
+                )
+                    :
+                Container(
+                  child: Center(child: Text('Content not available', style: title2,)),
                 )
               ]
           ),

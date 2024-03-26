@@ -416,7 +416,7 @@ class _DashboardState extends State<Dashboard> {
                                               Row(
                                                 children: [
                                                   Icon((percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Icons.trending_down:Icons.trending_up, color: (percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Colors.deepOrange:Colors.blue),
-                                                  Text('  ${_ordersController.orders.length<2?100:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt.ceil())}%', style: TextStyle(fontSize: 14, color:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Colors.red:Colors.blue, fontWeight: FontWeight.w700),),
+                                                  Text('  ${_ordersController.orders.length<2?100:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt.ceil()).abs()}%', style: TextStyle(fontSize: 14, color:(percentageChangeNxt.isNaN || percentageChangeNxt.isInfinite?0:percentageChangeNxt)<1?Colors.red:Colors.blue, fontWeight: FontWeight.w700),),
                                                 ],
                                               ),
                                             ],
@@ -458,7 +458,7 @@ class _DashboardState extends State<Dashboard> {
                                       Container(
                                         padding: EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 3),
                                         child: AnimatedDigitWidget(
-                                            value: prevSales,
+                                            value: prevSales.obs(),
                                             textStyle: title1,
                                             duration: Duration(seconds: 2),
                                             prefix: 'K'
@@ -513,13 +513,56 @@ class _DashboardState extends State<Dashboard> {
                         ),
                       ],
                     ):Container(),
-                    SizedBox(height: 18,),
                   ],
                 ),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 18),
-                child: CardItems(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child:  productsController.products.isNotEmpty?
+                GroupedListView.grid(
+                  items: productsController.products.value,
+                  itemGrouper: (var e) => e.category,
+                  physics: NeverScrollableScrollPhysics(),
+                  headerBuilder: (context, e) => Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                              border: BorderDirectional(top: BorderSide(color: Karas.secondary))
+                          ),
+                          margin: EdgeInsets.only(bottom: 10, top: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 5),
+                              Text(
+                                "$e",
+                                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey, fontSize: 18),
+                              ),
+                              SizedBox(height: 5)
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  shrinkWrap: true,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  gridItemBuilder:
+                      (context, int countInGroup, int itemIndexInGroup, item, itemIndexInOriginalList) {
+                    return TouchRippleEffect(
+                        rippleColor: Colors.grey.withOpacity(0.4),
+                        onTap: () {
+                          _methods.productToCartDialog(item, context);
+                        },
+                        child: BigItem(product: item)
+                    );
+                  },
+                  crossAxisCount: 2,
+                ): Container(),
+
+                  /*CardItems(
                   head: CardItemsHeader(title: 'Products', seeallbtn: InkWell(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 2),
@@ -532,55 +575,12 @@ class _DashboardState extends State<Dashboard> {
                     padding: EdgeInsets.symmetric(vertical: 0, horizontal: 15),
                     child: Column(
                       children: [
-                              productsController.products.isNotEmpty?
-                              GroupedListView.grid(
-                                items: productsController.products.value,
-                                itemGrouper: (var e) => e.category,
-                                physics: NeverScrollableScrollPhysics(),
-                                headerBuilder: (context, e) => Row(
-                                  children: [
-                                    Expanded(
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          border: BorderDirectional(top: BorderSide(color: Karas.secondary))
-                                        ),
-                                        margin: EdgeInsets.only(bottom: 10, top: 10),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            SizedBox(height: 5),
-                                            Text(
-                                              "$e",
-                                              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blueGrey, fontSize: 18),
-                                            ),
-                                            SizedBox(height: 5)
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                shrinkWrap: true,
-                                mainAxisSpacing: 10,
-                                crossAxisSpacing: 10,
-                                gridItemBuilder:
-                                    (context, int countInGroup, int itemIndexInGroup, item, itemIndexInOriginalList) {
-                                      return TouchRippleEffect(
-                                        rippleColor: Colors.grey.withOpacity(0.4),
-                                        onTap: () {
-                                          _methods.productToCartDialog(item, context);
-                                        },
-                                        child: BigItem(product: item)
-                                    );
-                                    },
-                                crossAxisCount: 2,
-                              ): Container(),
 
                         SizedBox(height: 15,),
                       ],
                     ),
                   ),
-                ),
+                )*/
               ),
               SizedBox(height: 40)
             ],

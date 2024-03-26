@@ -6,6 +6,7 @@ import 'package:rolade_pos/components/form_components/button1.dart';
 import 'package:rolade_pos/controllers/cart_controller.dart';
 import 'package:rolade_pos/styles/colors.dart';
 import 'package:rolade_pos/views/product_views/product_details.dart';
+import '../helpers/creds.dart';
 import '../helpers/methods.dart';
 import '../models/product_model.dart';
 import '../styles/title_styles.dart';
@@ -76,12 +77,16 @@ class StockItem extends StatelessWidget {
                     Spacer(),
                     Row(
                       children: [
-                        Button1(
-                            width: 80,
-                            label: 'Re-stock',
-                            tap: ()=>_methods.productQtyDialog(product, context)
-                        ),
-                        SizedBox(width: 10,),
+                        Creds().admin()?Column(
+                          children: [
+                            Button1(
+                                width: 80,
+                                label: 'Re-stock',
+                                tap: ()=>_methods.productQtyDialog(product, context)
+                            ),
+                            SizedBox(width: 10,),
+                          ],
+                        ):Container(),
                         _cartController.cart.value.map((e) => e.product['productId']).toList().contains(product.id)?
                         Button1(
                             backgroundColor: Karas.background,

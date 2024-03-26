@@ -7,7 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:nepali_date_picker/nepali_date_picker.dart';
-
+import 'package:flutter_enhanced_barcode_scanner/flutter_enhanced_barcode_scanner.dart';
 import 'package:rolade_pos/components/form_components/button2.dart';
 import 'package:rolade_pos/components/product_item_container.dart';
 import 'package:rolade_pos/controllers/cart_controller.dart';
@@ -23,6 +23,7 @@ import 'package:rolade_pos/models/product_model.dart';
 import 'package:rolade_pos/models/store_model.dart';
 import 'package:flutter/material.dart';
 import 'package:rolade_pos/views/product_views/product_entry.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:io';
 import '../components/form_components/button1.dart';
 import '../components/form_components/form_input_field.dart';
@@ -280,8 +281,6 @@ class Methods {
                               'datetime':'${DateTime.now()}'
                             })
                                 .then((value){
-                              userNameController.clear();
-                              userEmailController.clear();
 
                               FirebaseFirestore.instance.collection('users').add({
                                 'displayName':userNameController.text,
@@ -291,6 +290,8 @@ class Methods {
                                 'photo': '',
                                 'datetime':'${DateTime.now()}'
                               });
+                              userNameController.clear();
+                              userEmailController.clear();
                               Get.back();
                             });
                           }
@@ -822,7 +823,7 @@ class Methods {
     return formatter.format(price);
   }
         
-  void productBarcodeDialog(String barcode, AudioPlayer player){
+  void productBarcodeDialog(String barcode){
 
           bool isAdmin = _storeController.store.value.email == _userController.user.value.email;
 
@@ -1011,10 +1012,6 @@ class Methods {
                   )
                 );
                 } else {
-
-                  player.setAsset('assets/barcode_unrecognized.mp3');
-                  player.play();
-
                   return Container(
                     child: Column(
                       children: [
@@ -1111,7 +1108,7 @@ class Methods {
                                             child: Icon(Icons.remove, color: Colors.white,),
                                           ),
                                           tap: () {
-                                            qty.value>1?qty.value--:null;
+                                            qty.value>1?qty.value--:Fluttertoast.showToast(msg: "Can't exceed!");
                                           },
                                         ),
                                       ),
@@ -1130,7 +1127,7 @@ class Methods {
                                             child: Icon(Icons.add, color: Colors.white,),
                                           ),
                                           tap: () {
-                                            qty.value<int.parse(product.quantity)?qty.value++:null;
+                                            qty.value<int.parse(product.quantity)?qty.value++:Fluttertoast.showToast(msg: "Can't exceed!");
                                           },
                                         ),
                                       ),
@@ -1449,7 +1446,7 @@ class Methods {
                                           child: Icon(Icons.remove, color: Colors.white,),
                                         ),
                                         tap: () {
-                                          qty.value>1?qty.value--:null;
+                                          qty.value>1?qty.value--:Fluttertoast.showToast(msg: "Can't exceed!");
                                         },
                                       ),
                                     ),
@@ -1468,7 +1465,7 @@ class Methods {
                                           child: Icon(Icons.add, color: Colors.white,),
                                         ),
                                         tap: () {
-                                          qty.value<int.parse(product.quantity)?qty.value++:null;
+                                          qty.value<int.parse(product.quantity)?qty.value++:Fluttertoast.showToast(msg: "Can't exceed!");
                                         },
                                       ),
                                     ),
@@ -1530,6 +1527,48 @@ class Methods {
         }
 
   }
+  reduceOfflineStock({required String productID, required int qty})async{
 
+    try{
+      ProductModel product = _productsController.products.where((p0) => p0.id == productID).first;
+      int productQty = int.parse(product.quantity);
+      int reducedQty = productQty-qty;
+
+      //print(productQty);
+
+      FirebaseFirestore.instance.collection('product').doc(productID).update({'quantity':'$reducedQty'}).then((value){
+
+      });
+      _productsController.products.where((p0) => p0.id == productID).first.quantity = '$reducedQty';
+      _productsController.update();
+      //print(productQty);
+    }catch(e){
+      print(e);
+    }
+
+  }
+
+  void launchPhoneCall(String phone) async {
+    String phoneNumber = 'tel:$phone';
+    if (await canLaunch(phoneNumber)) {
+      await launch(phoneNumber);
+    } else {
+      throw 'Could not launch $phoneNumber';
+    }
+  }
+
+  Future barcodeScanner(player)async{
+    String barcode = await FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", false, ScanMode.DEFAULT);
+    if(barcode.toString().contains('-') || barcode.toString().length<10){
+      await player.setAsset('assets/barcode_unrecognized.mp3');
+      player.play();
+      print(barcode);
+    }else{
+      await player.setAsset('assets/scanned.mp3');
+      player.play();
+        productBarcodeDialog(barcode);
+
+    }
+  }
 
 }

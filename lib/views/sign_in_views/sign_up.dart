@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:rolade_pos/components/card_items.dart';
 import 'package:rolade_pos/components/form_components/button1.dart';
@@ -45,7 +46,11 @@ class SignUp extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Image.asset('assets/logo_splash.png', width: 80,),
+                              CircleAvatar(
+                                  radius: 45,
+                                  backgroundColor: Karas.secondary,
+                                  child: Image.asset('assets/logo_splash.png', width: 80,)
+                              ),
                               SizedBox(height: 10,),
                               Text('SIGN IN', style: title1,),
                               SizedBox(height: 10,),
@@ -57,7 +62,13 @@ class SignUp extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Email', style: title3,),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.email, size: 18, color: Karas.primary,),
+                                  Text('  Email Address', style: title3,),
+                                ],
+                              ),
                               SizedBox(height: 10,),
                               FormInputField(
                                 controller: emailController,
@@ -66,7 +77,13 @@ class SignUp extends StatelessWidget {
                                 backgroundColor: Karas.secondary,
                               ),
                               SizedBox(height: 15),
-                              Text('Password', style: title3,),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.password, size: 18, color: Karas.primary,),
+                                  Text('  Password', style: title3,),
+                                ],
+                              ),
                               SizedBox(height: 10,),
                               FormInputField(
                                 controller: passwordController,
@@ -78,22 +95,24 @@ class SignUp extends StatelessWidget {
                               Button1(
                                   label: 'Sign In',
                                   tap: ()async{
-                                    Get.dialog(
-                                        Center(
-                                          child: LoadingAnimationWidget.flickr(leftDotColor: Colors.deepOrange, rightDotColor: Karas.primary, size: 30),
-                                        ),
-                                        barrierDismissible: false,
-                                        barrierColor: Colors.black12
-                                    );
+                                    if(emailController.text!=""&&passwordController.text!=""){
+                                      Get.dialog(
+                                          Center(
+                                            child: LoadingAnimationWidget.flickr(leftDotColor: Colors.deepOrange, rightDotColor: Karas.primary, size: 30),
+                                          ),
+                                          barrierDismissible: false,
+                                          barrierColor: Colors.black12
+                                      );
 
-                                    UserModel user = await signInPassword.signIn(emailController.text, passwordController.text);
-                                    signInUp(
-                                      email: '${user.email}',
-                                      displayName: '${user.displayName}',
-                                      photo: '${user.photo}',
-                                      phone: '',
-                                    );
-                                    Get.back();
+                                      UserModel user = await signInPassword.signIn(emailController.text, passwordController.text);
+                                      signInUp(
+                                        email: '${user.email}',
+                                        displayName: '${user.displayName}',
+                                        photo: '${user.photo}',
+                                        phone: '',
+                                      );
+                                      Get.back();
+                                    }
                                   },
                                   height: 40
                               ),
@@ -130,7 +149,7 @@ class SignUp extends StatelessWidget {
                               backgroundColor: Karas.secondary,
                           ),*/
                               SizedBox(height: 20),
-                              Center(child: Text('Rolade POS @ 2024', style: title3,))
+                              Center(child: Text('Kass POS @ ${DateTime.now().year}', style: title3,))
                             ],
                           ),
                         )

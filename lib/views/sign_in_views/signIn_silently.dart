@@ -10,6 +10,7 @@ import 'package:rolade_pos/styles/colors.dart';
 import 'package:rolade_pos/styles/title_styles.dart';
 import 'package:connectivity_wrapper/connectivity_wrapper.dart';
 import 'package:rolade_pos/views/pages_anchor.dart';
+import '../../components/form_components/button2.dart';
 import '../../helpers/sign_up_helper.dart';
 
 class SignSilently extends StatefulWidget {
@@ -56,18 +57,21 @@ class _SignSilentlyState extends State<SignSilently> {
                 }else{
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       Image.asset('assets/nointernet.png', width: 250,),
                       SizedBox(height: 10),
                       Text('NO INTERNET CONNECTION', style: title1,),
                       SizedBox(height: 50,),
-                      Button1(
-                        width: 300,
-                        label: 'Continue',
-                        tap: () {
-                          Get.to(()=>PagesAnchor());
-                        },
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        child: Button2(
+                          width: 300,
+                          height: 40,
+                          tap: () {
+                            Get.offAll(()=>PagesAnchor());
+                          }, content: Text('Continue', style: TextStyle(color: Colors.white),),
+                        ),
                       )
                     ],
                   ); //No connection

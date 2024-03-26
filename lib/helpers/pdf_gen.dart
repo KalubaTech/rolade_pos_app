@@ -207,7 +207,7 @@ pdfGen(
                                     textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                             SizedBox(width: 15),
                             Container(
-                                child: Text("K${_methods.formatNumber(double.parse(subtotal))}",
+                                child: Text("K${_methods.formatNumber(double.parse(subtotal.replaceAll(',', '')))}",
                                     textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                           ],
                         ),
@@ -231,7 +231,7 @@ pdfGen(
                                     textAlign: TextAlign.right,)),
                             SizedBox(width: 15),
                             Container(
-                                child: Text("K${_methods.formatNumber(double.parse(total))}",
+                                child: Text("K${_methods.formatNumber(double.parse(total.replaceAll(',', '')))}",
                                     style: TextStyle(fontWeight: FontWeight.bold),
                                     textAlign: TextAlign.right)),
                           ],
@@ -256,7 +256,7 @@ pdfGen(
                                   child: Text("Cash", textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                               SizedBox(width: 15),
                               Container(
-                                  child: Text("K${_methods.formatNumber(double.parse(cash))}",
+                                  child: Text("K${_methods.formatNumber(double.parse(cash.replaceAll(',', '')))}",
                                       textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                             ],
                           ),
@@ -268,7 +268,7 @@ pdfGen(
                                       textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                               SizedBox(width: 15),
                               Container(
-                                  child: Text("K${_methods.formatNumber(double.parse(change))}",
+                                  child: Text("K${_methods.formatNumber(double.parse(change.replaceAll(',', '')))}",
                                       textAlign: TextAlign.right, style: TextStyle(fontSize: 8))),
                             ],
                           ),
